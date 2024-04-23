@@ -2,7 +2,7 @@
 
 Get a security and quality analysis of your dependencies with TrustyPkg!
 
-![alt text](image.png)
+![alt text](docs/image.png)
 
 ## Features
 
