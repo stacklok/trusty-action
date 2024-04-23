@@ -1,5 +1,21 @@
 # Trusty Dependency Analysis Action
 
+Get a security and quality analysis of your dependencies with TrustyPkg!
+
+![alt text](image.png)
+
+## Features
+
+* Check if the dependencies are malicious or deprecated
+* Assess the quality and security of your dependencies using TrustyPkg
+  activity hueristics
+* See if it contains a source of origin to a legitimate code repository using
+  sigstore and Trusty's historical provenance algorithm
+* Understand if the package is a possible typo squatting attack
+* Get a list of recommended alternatives to the dependency
+
+## Overview
+
 This action takes any added dependencies within a pull request and assesses their 
 quality using the [Trusty](https://trustypkg.dev/) API. If any dependencies are
 found to be below a certain threshold (See details below), the action will fail.
@@ -13,6 +29,7 @@ Full Language Support (inline with Trusty):
 * Java
 * Rust
 * Go
+
 
 ## Usage
 
