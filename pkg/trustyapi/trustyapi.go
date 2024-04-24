@@ -111,7 +111,7 @@ func BuildReport(ctx context.Context,
 // The function constructs the query URL, makes the API request, and processes the response.
 // If the Trusty score of the dependency is above the score threshold, it skips the dependency.
 // Otherwise, it formats the report using Markdown and includes information about the dependency's Trusty score,
-// whether it is malicious or deprecated, and recommended alternative packages if available.
+// whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
 func processDependency(dep string, ecosystem string, scoreThreshold float64) (string, bool) {
 	var reportBuilder strings.Builder
@@ -147,16 +147,21 @@ func processDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
-	// Highlight if the package is malicious or deprecated
+	// Highlight if the package is malicious, deprecated or archived
 	if result.Summary.Description.Malicious {
 		reportBuilder.WriteString("### **⚠️ Malicious** (This package is marked as Malicious. Proceed with extreme caution!)\n\n")
 	}
 	if result.PackageData.IsDeprecated {
 		reportBuilder.WriteString("### **⚠️ Deprecated** (This package is marked as Deprecated. Proceed with caution!)\n\n")
 	}
+
+	if result.PackageData.Archived {
+		reportBuilder.WriteString("### **⚠️ Archived** (This package is marked as Archived. Proceed with caution!)\n\n")
+	}
+
 	reportBuilder.WriteString(fmt.Sprintf("### 📉 Trusty Score: `%.2f`\n", result.Summary.Score))
 
-	// Include alternative packages in a Markdown table if available and if the package is deprecated or malicious
+	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
 	if result.Alternatives.Packages != nil && len(result.Alternatives.Packages) > 0 {
 		reportBuilder.WriteString("### :bulb: Recommended Alternative Packages\n")
 		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
@@ -171,9 +176,10 @@ func processDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	reportBuilder.WriteString("\n---\n\n")
 
-	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, if so shouldFail is set to true
+	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
 	if result.PackageData.IsDeprecated ||
 		result.Summary.Description.Malicious ||
+		result.PackageData.Archived ||
 		result.Summary.Score < scoreThreshold {
 		shouldFail = true
 	}

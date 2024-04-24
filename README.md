@@ -6,7 +6,7 @@ Get a security and quality analysis of your dependencies with TrustyPkg!
 
 ## Features
 
-* Check if the dependencies are malicious or deprecated
+* Check if the dependencies are malicious, deprecated or archived
 * Assess the quality and security of your dependencies using TrustyPkg
   activity hueristics
 * See if it contains a source of origin to a legitimate code repository using
@@ -20,7 +20,7 @@ This action takes any added dependencies within a pull request and assesses thei
 quality using the [Trusty](https://trustypkg.dev/) API. If any dependencies are
 found to be below a certain threshold (See details below), the action will fail.
 
-If any dependencies are malicious, or deprecated, the action will also fail.
+If any dependencies are malicious, deprecated, or archived, the action will also fail.
 
 Full Language Support (inline with Trusty):
 
