@@ -16,6 +16,7 @@
 package parser
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/stacklok/trusty-action/pkg/types"
@@ -52,10 +53,14 @@ func ParseGoMod(content string) ([]types.Dependency, error) {
 					depName = parts[0]
 					depVersion = parts[1]
 				} else { // Inline require
+					if len(parts) < 3 {
+						continue // Skip malformed inline requires that do not have both a name and a version
+					}
 					depName = parts[1]
 					depVersion = parts[2]
 				}
-				deps = append(deps, types.Dependency{Name: depName, Version: depVersion})
+				encodedDepName := url.PathEscape(depName)
+				deps = append(deps, types.Dependency{Name: encodedDepName, Version: depVersion})
 			}
 		}
 	}
