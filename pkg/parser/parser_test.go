@@ -36,7 +36,7 @@ func TestParse(t *testing.T) {
 			filename: "go.mod",
 			content:  "module example.com\n\ngo 1.16\n\nrequire (\n\tgithub.com/google/go-github/v60 v60.0.0\n)",
 			expected: []types.Dependency{
-				{Name: "github.com/google/go-github/v60", Version: "v60.0.0"},
+				{Name: "github.com%2Fgoogle%2Fgo-github%2Fv60", Version: "v60.0.0"},
 			},
 			ecosystem: "go",
 			err:       nil,
