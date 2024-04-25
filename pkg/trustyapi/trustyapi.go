@@ -171,9 +171,9 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 	} else {
 		// need to write regular provenance info
 		reportBuilder.WriteString("### :key: Proof of origin (Provenance):\n")
-		reportBuilder.WriteString(fmt.Sprintf("# versions: %.0f\n", result.Provenance.Description.Hp.Versions))
-		reportBuilder.WriteString(fmt.Sprintf("# tags: %.0f\n", result.Provenance.Description.Hp.Tags))
-		reportBuilder.WriteString(fmt.Sprintf("# matched: %.0f\n", result.Provenance.Description.Hp.Common))
+		reportBuilder.WriteString(fmt.Sprintf("· Number of versions: %.0f\n", result.Provenance.Description.Hp.Versions))
+		reportBuilder.WriteString(fmt.Sprintf("· Number of Git Tags/Releases: %.0f\n", result.Provenance.Description.Hp.Tags))
+		reportBuilder.WriteString(fmt.Sprintf("· Number of versions matched to Git Tags/Releases: %.0f\n", result.Provenance.Description.Hp.Common))
 	}
 	reportBuilder.WriteString("[Learn more about source of origin provenance](https://docs.stacklok.com/trusty/understand/provenance)\n")
 

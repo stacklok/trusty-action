@@ -86,13 +86,13 @@ func TestProcessHistoricalProvenance(t *testing.T) {
 	scoreThreshold := 10.0
 
 	report, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold)
-	if !strings.Contains(report, "# versions") {
+	if !strings.Contains(report, "Number of versions") {
 		t.Errorf("Versions for historical provenance not populated")
 	}
-	if !strings.Contains(report, "# tags") {
+	if !strings.Contains(report, "Number of Git Tags/Releases") {
 		t.Errorf("Tags for historical provenance not populated")
 	}
-	if !strings.Contains(report, "# matched") {
+	if !strings.Contains(report, "Number of versions matched to Git Tags/Releases") {
 		t.Errorf("Matched for historical provenance not populated")
 	}
 
