@@ -16,7 +16,6 @@
 package parser
 
 import (
-	"net/url"
 	"strings"
 
 	"github.com/stacklok/trusty-action/pkg/types"
@@ -59,8 +58,7 @@ func ParseGoMod(content string) ([]types.Dependency, error) {
 					depName = parts[1]
 					depVersion = parts[2]
 				}
-				encodedDepName := url.PathEscape(depName)
-				deps = append(deps, types.Dependency{Name: encodedDepName, Version: depVersion})
+				deps = append(deps, types.Dependency{Name: depName, Version: depVersion})
 			}
 		}
 	}
