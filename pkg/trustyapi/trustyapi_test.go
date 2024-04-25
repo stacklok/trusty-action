@@ -1,14 +1,12 @@
 package trustyapi
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"testing"
 )
 
-func TestProcessDependencies(t *testing.T) {
-	fmt.Println("in test processing")
+func TestProcessGoDependencies(t *testing.T) {
 	ecosystem := "go"
 	scoreThreshold := 5.0
 
@@ -27,6 +25,38 @@ func TestProcessDependencies(t *testing.T) {
 			if !strings.Contains(report, "Archived") {
 				t.Errorf("Expected report to contain 'Archived' for %s", dep)
 			}
+		}
+	}
+}
+
+func TestProcessDeprecatedDependencies(t *testing.T) {
+	ecosystem := "npm"
+	scoreThreshold := 10.0
+
+	dependencies := []string{"@types/google-cloud__storage", "cutjs", "scriptoni", "stryker-mocha-framework", "grunt-html-smoosher", "moesif-express", "swagger-methods",
+		"@syncfusion/ej2-heatmap", "@cnbritain/wc-buttons", "gulp-google-cdn"}
+
+	for _, dep := range dependencies {
+		log.Printf("Analyzing dependency: %s\n", dep)
+		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold)
+		if !strings.Contains(report, "Deprecated") {
+			t.Errorf("Expected report to contain 'Deprecated' for %s", dep)
+		}
+	}
+
+}
+
+func TestProcessMaliciousDependencies(t *testing.T) {
+	ecosystem := "pypi"
+	scoreThreshold := 10.0
+
+	dependencies := []string{"lyft-service", "types-for-adobe", "booto3", "google-requests", "reqargs"}
+
+	for _, dep := range dependencies {
+		log.Printf("Analyzing dependency: %s\n", dep)
+		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold)
+		if !strings.Contains(report, "Malicious") {
+			t.Errorf("Expected report to contain 'Malicious' for %s", dep)
 		}
 	}
 

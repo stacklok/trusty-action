@@ -148,7 +148,7 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
 	// Highlight if the package is malicious, deprecated or archived
-	if result.Summary.Description.Malicious {
+	if result.PackageData.Origin == "malicious" {
 		reportBuilder.WriteString("### **⚠️ Malicious** (This package is marked as Malicious. Proceed with extreme caution!)\n\n")
 	}
 	if result.PackageData.IsDeprecated {
@@ -178,7 +178,7 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
 	if result.PackageData.IsDeprecated ||
-		result.Summary.Description.Malicious ||
+		result.PackageData.Origin == "malicious" ||
 		result.PackageData.Archived ||
 		result.Summary.Score < scoreThreshold {
 		shouldFail = true
