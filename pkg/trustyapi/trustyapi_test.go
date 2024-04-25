@@ -61,3 +61,39 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 	}
 
 }
+
+func TestProcessSigstoreProvenance(t *testing.T) {
+	ecosystem := "npm"
+	scoreThreshold := 10.0
+
+	report, _ := ProcessDependency("sigstore", ecosystem, scoreThreshold)
+	if !strings.Contains(report, "sigstore") {
+		t.Errorf("Expected report to contain 'sigstore'")
+	}
+	if !strings.Contains(report, "Source repo: `https://github.com/sigstore/sigstore-js`") {
+		t.Errorf("Source repo not matching")
+	}
+	if !strings.Contains(report, "Github Action Workflow: `.github/workflows/release.yml`") {
+		t.Errorf("Github workflow not matching")
+	}
+	if !strings.Contains(report, "Issuer: `CN=sigstore-intermediate,O=sigstore.dev`") {
+		t.Errorf("Issuer not matching")
+	}
+}
+
+func TestProcessHistoricalProvenance(t *testing.T) {
+	ecosystem := "npm"
+	scoreThreshold := 10.0
+
+	report, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold)
+	if !strings.Contains(report, "# versions") {
+		t.Errorf("Versions for historical provenance not populated")
+	}
+	if !strings.Contains(report, "# tags") {
+		t.Errorf("Tags for historical provenance not populated")
+	}
+	if !strings.Contains(report, "# matched") {
+		t.Errorf("Matched for historical provenance not populated")
+	}
+
+}

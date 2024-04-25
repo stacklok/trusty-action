@@ -144,7 +144,6 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		log.Printf("Skipping dependency %s due to score %.2f being above the threshold %.2f\n", dep, result.Summary.Score, scoreThreshold)
 		return "", shouldFail // shouldFail is false here, nothing to see.
 	}
-
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
 	// Highlight if the package is malicious, deprecated or archived
@@ -160,6 +159,22 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 	}
 
 	reportBuilder.WriteString(fmt.Sprintf("### 📉 Trusty Score: `%.2f`\n", result.Summary.Score))
+
+	// write provenance information
+	if result.Provenance.Description.Provenance.Issuer != "" {
+		reportBuilder.WriteString("### :key: Proof of origin (Provenance):\n")
+		reportBuilder.WriteString("Built and signed with sigstore using GitHub Actions.\n")
+		reportBuilder.WriteString(fmt.Sprintf("· Source repo: `%s`\n", result.Provenance.Description.Provenance.SourceRepo))
+		reportBuilder.WriteString(fmt.Sprintf("· Github Action Workflow: `%s`\n", result.Provenance.Description.Provenance.Workflow))
+		reportBuilder.WriteString(fmt.Sprintf("· Issuer: `%s`\n", result.Provenance.Description.Provenance.Issuer))
+		reportBuilder.WriteString(fmt.Sprintf("· Rekor Public Ledger: `%s`\n", result.Provenance.Description.Provenance.Transparency))
+	} else {
+		// need to write regular provenance info
+		reportBuilder.WriteString("### :key: Proof of origin (Provenance):\n")
+		reportBuilder.WriteString(fmt.Sprintf("# versions: %.0f\n", result.Provenance.Description.Hp.Versions))
+		reportBuilder.WriteString(fmt.Sprintf("# tags: %.0f\n", result.Provenance.Description.Hp.Tags))
+		reportBuilder.WriteString(fmt.Sprintf("# matched: %.0f\n", result.Provenance.Description.Hp.Common))
+	}
 
 	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
 	if result.Alternatives.Packages != nil && len(result.Alternatives.Packages) > 0 {
