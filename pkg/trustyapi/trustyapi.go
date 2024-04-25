@@ -175,6 +175,7 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		reportBuilder.WriteString(fmt.Sprintf("# tags: %.0f\n", result.Provenance.Description.Hp.Tags))
 		reportBuilder.WriteString(fmt.Sprintf("# matched: %.0f\n", result.Provenance.Description.Hp.Common))
 	}
+	reportBuilder.WriteString("[Learn more about source of origin provenance](https://docs.stacklok.com/trusty/understand/provenance)\n")
 
 	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
 	if result.Alternatives.Packages != nil && len(result.Alternatives.Packages) > 0 {
