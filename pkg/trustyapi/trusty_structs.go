@@ -95,7 +95,6 @@ type Package struct {
 		Score       float64 `json:"score"`
 		Description struct {
 			Activity      float64 `json:"activity"`
-			Malicious     bool    `json:"malicious"`
 			Provenance    float64 `json:"provenance"`
 			Typosquatting float64 `json:"typosquatting"`
 			ActivityUser  float64 `json:"activity_user"`

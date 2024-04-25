@@ -68,7 +68,7 @@ func BuildReport(ctx context.Context,
 	// it to the existing reportBuilder, between the header and footer.
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, shouldFail := processDependency(dep, ecosystem, scoreThreshold)
+		report, shouldFail := ProcessDependency(dep, ecosystem, scoreThreshold)
 		// Check if the report is not just whitespace
 		if strings.TrimSpace(report) != "" {
 			reportBuilder.WriteString(report)
@@ -113,7 +113,7 @@ func BuildReport(ctx context.Context,
 // Otherwise, it formats the report using Markdown and includes information about the dependency's Trusty score,
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
-func processDependency(dep string, ecosystem string, scoreThreshold float64) (string, bool) {
+func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (string, bool) {
 	var reportBuilder strings.Builder
 	shouldFail := false
 
@@ -148,7 +148,7 @@ func processDependency(dep string, ecosystem string, scoreThreshold float64) (st
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
 	// Highlight if the package is malicious, deprecated or archived
-	if result.Summary.Description.Malicious {
+	if result.PackageData.Origin == "malicious" {
 		reportBuilder.WriteString("### **⚠️ Malicious** (This package is marked as Malicious. Proceed with extreme caution!)\n\n")
 	}
 	if result.PackageData.IsDeprecated {
@@ -167,7 +167,7 @@ func processDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
 		reportBuilder.WriteString("| ------- | ----- | ---------- |\n")
 		for _, alt := range result.Alternatives.Packages {
-			altURL := fmt.Sprintf("https://www.trustypkg.dev/%s/%s", ecosystem, alt.PackageName)
+			altURL := fmt.Sprintf("https://www.trustypkg.dev/%s/%s", ecosystem, url.QueryEscape(alt.PackageName))
 			reportBuilder.WriteString(fmt.Sprintf("| `%s` | `%.2f` | [`%s`](%s) |\n", alt.PackageName, float64(alt.Score), alt.PackageName, altURL))
 		}
 	} else {
@@ -178,7 +178,7 @@ func processDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
 	if result.PackageData.IsDeprecated ||
-		result.Summary.Description.Malicious ||
+		result.PackageData.Origin == "malicious" ||
 		result.PackageData.Archived ||
 		result.Summary.Score < scoreThreshold {
 		shouldFail = true
