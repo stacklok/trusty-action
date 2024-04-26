@@ -48,7 +48,8 @@ func main() {
 	ctx := context.Background()
 
 	globalThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_GLOBAL"), "5")
-	activityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_ACTIVITY"), "0")
+	repoActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_REPO_ACTIVITY"), "0")
+	authorActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_AUTHOR_ACTIVITY"), "0")
 	provenanceThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_PROVENANCE"), "0")
 	typosquattingThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_TYPOSQUATTING"), "0")
 
@@ -174,7 +175,7 @@ func main() {
 		log.Printf("Added dependencies: %v\n", addedDepNames)
 
 		// In your main application where you call ProcessDependencies
-		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, activityThreshold, provenanceThreshold, typosquattingThreshold)
+		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
 
 	}
 }

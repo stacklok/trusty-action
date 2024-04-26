@@ -9,8 +9,12 @@ inputs:
       description: "Raise global score below this score as an issue"
       required: false
       default: 5
-    activity:
-      description: "Raise activity below this score as an issue"
+    repo_activity:
+      description: "Raise repo activity below this score as an issue"
+      required: false
+      default: 0
+    author_activity:
+      description: "Raise author activity below this score as an issue"
       required: false
       default: 0
     provenance:

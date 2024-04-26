@@ -51,7 +51,8 @@ func BuildReport(ctx context.Context,
 	dependencies []string,
 	ecosystem string,
 	globalThreshold float64,
-	activithTreshold float64,
+	repoActivityThreshold float64,
+	authorActivityThreshold float64,
 	provenanceThreshold float64,
 	typosquattingThreshold float64) {
 
@@ -61,17 +62,13 @@ func BuildReport(ctx context.Context,
 	)
 
 	reportHeader := "## 🐻 Trusty Dependency Analysis Action Report \n\n"
-
 	reportBuilder.WriteString(reportHeader)
-
-	warningMessage := fmt.Sprintf("#### The following dependencies have Trusty scores below the set threshold of `%.2f`:\n\n", scoreThreshold)
-	reportBuilder.WriteString(warningMessage)
 
 	// The following loop generates the report for each dependency and then adds
 	// it to the existing reportBuilder, between the header and footer.
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, shouldFail := ProcessDependency(dep, ecosystem, scoreThreshold)
+		report, shouldFail := ProcessDependency(dep, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
 		// Check if the report is not just whitespace
 		if strings.TrimSpace(report) != "" {
 			reportBuilder.WriteString(report)
@@ -89,7 +86,7 @@ func BuildReport(ctx context.Context,
 
 	// Trim whitespace for accurate comparison
 	trimmedCommentBody := strings.TrimSpace(commentBody)
-	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + warningMessage + reportFooter)
+	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + reportFooter)
 
 	// Check if the comment body has more content than just the header and footer combined
 	if len(trimmedCommentBody) > len(trimmedHeaderAndFooter) {
@@ -116,7 +113,7 @@ func BuildReport(ctx context.Context,
 // Otherwise, it formats the report using Markdown and includes information about the dependency's Trusty score,
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
-func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (string, bool) {
+func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64) (string, bool) {
 	var reportBuilder strings.Builder
 	shouldFail := false
 
@@ -144,6 +141,8 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
+
+	// Show score detail
 	// Highlight if the package is malicious, deprecated or archived
 	if result.PackageData.Origin == "malicious" {
 		reportBuilder.WriteString("### **⚠️ Malicious** (This package is marked as Malicious. Proceed with extreme caution!)\n\n")
@@ -156,7 +155,12 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		reportBuilder.WriteString("### **⚠️ Archived** (This package is marked as Archived. Proceed with caution!)\n\n")
 	}
 
+	// scores
 	reportBuilder.WriteString(fmt.Sprintf("### 📉 Trusty Score: `%.2f`\n", result.Summary.Score))
+	reportBuilder.WriteString(fmt.Sprintf("· Repo activity score: `%.2f`\n", result.Summary.Description.ActivityRepo))
+	reportBuilder.WriteString(fmt.Sprintf("· Author activity score: `%.2f`\n", result.Summary.Description.ActivityUser))
+	reportBuilder.WriteString(fmt.Sprintf("· Provenance score: `%.2f`\n", result.Summary.Description.Provenance))
+	reportBuilder.WriteString(fmt.Sprintf("· Typosquatting score: `%.2f`\n", result.Summary.Description.Typosquatting))
 
 	// write provenance information
 	if result.Provenance.Description.Provenance.Issuer != "" {
@@ -194,7 +198,9 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 	if result.PackageData.IsDeprecated ||
 		result.PackageData.Origin == "malicious" ||
 		result.PackageData.Archived ||
-		result.Summary.Score < scoreThreshold {
+		result.Summary.Score < globalThreshold || result.Summary.Description.ActivityRepo < repoActivityThreshold ||
+		result.Summary.Description.ActivityUser < authorActivityThreshold || result.Summary.Description.Provenance < provenanceThreshold ||
+		result.Summary.Description.Typosquatting < typosquattingThreshold {
 		shouldFail = true
 	}
 
