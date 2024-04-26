@@ -58,11 +58,7 @@ func BuildReport(ctx context.Context,
 	)
 
 	reportHeader := "## 🐻 Trusty Dependency Analysis Action Report \n\n"
-
 	reportBuilder.WriteString(reportHeader)
-
-	warningMessage := fmt.Sprintf("#### The following dependencies have Trusty scores below the set threshold of `%.2f`:\n\n", scoreThreshold)
-	reportBuilder.WriteString(warningMessage)
 
 	// The following loop generates the report for each dependency and then adds
 	// it to the existing reportBuilder, between the header and footer.
@@ -86,7 +82,7 @@ func BuildReport(ctx context.Context,
 
 	// Trim whitespace for accurate comparison
 	trimmedCommentBody := strings.TrimSpace(commentBody)
-	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + warningMessage + reportFooter)
+	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + reportFooter)
 
 	// Check if the comment body has more content than just the header and footer combined
 	if len(trimmedCommentBody) > len(trimmedHeaderAndFooter) {
