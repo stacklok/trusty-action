@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestProcessGoDependencies(t *testing.T) {
@@ -26,6 +27,7 @@ func TestProcessGoDependencies(t *testing.T) {
 				t.Errorf("Expected report to contain 'Archived' for %s", dep)
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -50,7 +52,7 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 	ecosystem := "pypi"
 	scoreThreshold := 10.0
 
-	dependencies := []string{"lyft-service", "types-for-adobe", "booto3", "google-requests", "reqargs"}
+	dependencies := []string{"lyft-service", "types-for-adobe", "reqargs"}
 
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)

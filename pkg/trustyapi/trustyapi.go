@@ -162,7 +162,7 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 
 	// write provenance information
 	if result.Provenance.Description.Provenance.Issuer != "" {
-		reportBuilder.WriteString("### :key: Proof of origin (Provenance):\n")
+		reportBuilder.WriteString("### ![Sigstore](https://www.trustypkg.dev/icons/sigstore-horizontal.svg) Proof of origin (Provenance):\n")
 		reportBuilder.WriteString("Built and signed with sigstore using GitHub Actions.\n")
 		reportBuilder.WriteString(fmt.Sprintf("· Source repo: `%s`\n", result.Provenance.Description.Provenance.SourceRepo))
 		reportBuilder.WriteString(fmt.Sprintf("· Github Action Workflow: `%s`\n", result.Provenance.Description.Provenance.Workflow))
