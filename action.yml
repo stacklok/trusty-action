@@ -1,15 +1,28 @@
-name: 'TrustyPkg Action'
-description: 'Run Trusty against your dependencies for supply chain risks'
+name: "TrustyPkg Action"
+description: "Run Trusty against your dependencies for supply chain risks"
 inputs:
   GITHUB_TOKEN:
-    description: 'GitHub token'
+    description: "GitHub token"
     required: true
-  score_threshold:
-    description: 'Raise anything below this score as an issue'
-    required: false
-    default: 5
+  thresholds:
+    global:
+      description: "Raise global score below this score as an issue"
+      required: false
+      default: 5
+    activity:
+      description: "Raise activity below this score as an issue"
+      required: false
+      default: 0
+    provenance:
+      description: "Raise provenance below this score as an issue"
+      required: false
+      default: 0
+    typosquatting:
+      description: "Raise typosquatting below this score as an issue"
+      required: false
+      default: 0
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
     - ${{ inputs.recursive }}

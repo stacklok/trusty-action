@@ -50,7 +50,10 @@ func BuildReport(ctx context.Context,
 	prNumber int,
 	dependencies []string,
 	ecosystem string,
-	scoreThreshold float64) {
+	globalThreshold float64,
+	activithTreshold float64,
+	provenanceThreshold float64,
+	typosquattingThreshold float64) {
 
 	var (
 		reportBuilder strings.Builder

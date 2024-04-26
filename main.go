@@ -32,19 +32,25 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func parseScore(scoreStr string, defaultScore string) float64 {
+	if scoreStr == "" {
+		scoreStr = defaultScore
+	}
+	score, err := strconv.ParseFloat(scoreStr, 64)
+	if err != nil {
+		log.Printf("Invalid score threshold value: %s\n", scoreStr)
+		return 0
+	}
+	return score
+}
+
 func main() {
 	ctx := context.Background()
 
-	scoreThresholdStr := os.Getenv("INPUT_SCORE_THRESHOLD")
-	if scoreThresholdStr == "" {
-		log.Println("No score threshold provided, using default value.")
-		scoreThresholdStr = "5" // Ensure this default value is appropriate (check with DS team)
-	}
-	scoreThreshold, err := strconv.ParseFloat(scoreThresholdStr, 64)
-	if err != nil {
-		log.Printf("Invalid score threshold value: %s\n", scoreThresholdStr)
-		return
-	}
+	globalThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_GLOBAL"), "5")
+	activityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_ACTIVITY"), "0")
+	provenanceThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_PROVENANCE"), "0")
+	typosquattingThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_TYPOSQUATTING"), "0")
 
 	// Split the GITHUB_REPOSITORY environment variable to get owner and repo
 	repoFullName := os.Getenv("GITHUB_REPOSITORY")
@@ -168,7 +174,7 @@ func main() {
 		log.Printf("Added dependencies: %v\n", addedDepNames)
 
 		// In your main application where you call ProcessDependencies
-		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, scoreThreshold)
+		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, activityThreshold, provenanceThreshold, typosquattingThreshold)
 
 	}
 }
