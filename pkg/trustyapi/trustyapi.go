@@ -54,7 +54,10 @@ func BuildReport(ctx context.Context,
 	repoActivityThreshold float64,
 	authorActivityThreshold float64,
 	provenanceThreshold float64,
-	typosquattingThreshold float64) {
+	typosquattingThreshold float64,
+	failOnMalicious bool,
+	failOnDeprecated bool,
+	failOnArchived bool) {
 
 	var (
 		reportBuilder strings.Builder
@@ -68,7 +71,8 @@ func BuildReport(ctx context.Context,
 	// it to the existing reportBuilder, between the header and footer.
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, shouldFail := ProcessDependency(dep, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
+		report, shouldFail := ProcessDependency(dep, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
+			failOnMalicious, failOnDeprecated, failOnArchived)
 		// Check if the report is not just whitespace
 		if strings.TrimSpace(report) != "" {
 			reportBuilder.WriteString(report)
@@ -113,7 +117,8 @@ func BuildReport(ctx context.Context,
 // Otherwise, it formats the report using Markdown and includes information about the dependency's Trusty score,
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
-func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64) (string, bool) {
+func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
+	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool) {
 	var reportBuilder strings.Builder
 	shouldFail := false
 
@@ -195,9 +200,9 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	reportBuilder.WriteString("\n---\n\n")
 
 	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
-	if result.PackageData.IsDeprecated ||
-		result.PackageData.Origin == "malicious" ||
-		result.PackageData.Archived ||
+	if (failOnDeprecated && result.PackageData.IsDeprecated) ||
+		(failOnMalicious && result.PackageData.Origin == "malicious") ||
+		(failOnArchived && result.PackageData.Archived) ||
 		result.Summary.Score < globalThreshold || result.Summary.Description.ActivityRepo < repoActivityThreshold ||
 		result.Summary.Description.ActivityUser < authorActivityThreshold || result.Summary.Description.Provenance < provenanceThreshold ||
 		result.Summary.Description.Typosquatting < typosquattingThreshold {

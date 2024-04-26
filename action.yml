@@ -25,6 +25,19 @@ inputs:
       description: "Raise typosquatting below this score as an issue"
       required: false
       default: 0
+    fail_on:
+      malicious:
+        description: "Fail if package is malicious"
+        required: false
+        default: true
+      deprecated:
+        description: "Fail if package is deprecated"
+        required: false
+        default: true
+      archived:
+        description: "Fail if repo is archived"
+        required: false
+        default: true
 runs:
   using: "docker"
   image: "Dockerfile"

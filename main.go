@@ -44,6 +44,18 @@ func parseScore(scoreStr string, defaultScore string) float64 {
 	return score
 }
 
+func parseFail(failStr string, defaultFail string) bool {
+	if failStr == "" {
+		failStr = defaultFail
+	}
+	fail, err := strconv.ParseBool(failStr)
+	if err != nil {
+		log.Printf("Invalid fail value: %s\n", failStr)
+		return false
+	}
+	return fail
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -52,6 +64,10 @@ func main() {
 	authorActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_AUTHOR_ACTIVITY"), "0")
 	provenanceThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_PROVENANCE"), "0")
 	typosquattingThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_TYPOSQUATTING"), "0")
+
+	failOnMalicious := parseFail(os.Getenv("INPUT_FAIL_ON_MALICIOUS"), "true")
+	failOnDeprecated := parseFail(os.Getenv("INPUT_FAIL_ON_DEPRECATED"), "true")
+	failOnArchived := parseFail(os.Getenv("INPUT_FAIL_ON_ARCHIVED"), "true")
 
 	// Split the GITHUB_REPOSITORY environment variable to get owner and repo
 	repoFullName := os.Getenv("GITHUB_REPOSITORY")
@@ -175,7 +191,8 @@ func main() {
 		log.Printf("Added dependencies: %v\n", addedDepNames)
 
 		// In your main application where you call ProcessDependencies
-		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
+		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
+			failOnMalicious, failOnDeprecated, failOnArchived)
 
 	}
 }
