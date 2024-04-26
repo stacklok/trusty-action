@@ -139,11 +139,6 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		log.Printf("Processing result for dependency: %s\n", dep)
 	}
 
-	// Check if the Trusty score is greater than the scoreThreshold
-	if result.Summary.Score > scoreThreshold {
-		log.Printf("Skipping dependency %s due to score %.2f being above the threshold %.2f\n", dep, result.Summary.Score, scoreThreshold)
-		return "", shouldFail // shouldFail is false here, nothing to see.
-	}
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
 	// Highlight if the package is malicious, deprecated or archived
