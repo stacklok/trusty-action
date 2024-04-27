@@ -33,7 +33,7 @@ func TestProcessGoDependencies(t *testing.T) {
 
 func TestProcessDeprecatedDependencies(t *testing.T) {
 	ecosystem := "npm"
-	scoreThreshold := 10.0
+	scoreThreshold := 5.0
 
 	dependencies := []string{"@types/google-cloud__storage", "cutjs", "scriptoni", "stryker-mocha-framework", "grunt-html-smoosher", "moesif-express", "swagger-methods",
 		"@syncfusion/ej2-heatmap", "@cnbritain/wc-buttons", "gulp-google-cdn"}
@@ -50,7 +50,7 @@ func TestProcessDeprecatedDependencies(t *testing.T) {
 
 func TestProcessMaliciousDependencies(t *testing.T) {
 	ecosystem := "pypi"
-	scoreThreshold := 10.0
+	scoreThreshold := 5.0
 
 	dependencies := []string{"lyft-service", "types-for-adobe", "reqargs"}
 
@@ -66,7 +66,7 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 
 func TestProcessSigstoreProvenance(t *testing.T) {
 	ecosystem := "npm"
-	scoreThreshold := 10.0
+	scoreThreshold := 5.0
 
 	report, _ := ProcessDependency("sigstore", ecosystem, scoreThreshold)
 	if !strings.Contains(report, "sigstore") {
@@ -85,7 +85,7 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 
 func TestProcessHistoricalProvenance(t *testing.T) {
 	ecosystem := "npm"
-	scoreThreshold := 10.0
+	scoreThreshold := 5.0
 
 	report, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold)
 	if !strings.Contains(report, "Number of versions") {

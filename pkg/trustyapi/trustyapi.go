@@ -58,11 +58,7 @@ func BuildReport(ctx context.Context,
 	)
 
 	reportHeader := "## 🐻 Trusty Dependency Analysis Action Report \n\n"
-
 	reportBuilder.WriteString(reportHeader)
-
-	warningMessage := fmt.Sprintf("#### The following dependencies have Trusty scores below the set threshold of `%.2f`:\n\n", scoreThreshold)
-	reportBuilder.WriteString(warningMessage)
 
 	// The following loop generates the report for each dependency and then adds
 	// it to the existing reportBuilder, between the header and footer.
@@ -86,7 +82,7 @@ func BuildReport(ctx context.Context,
 
 	// Trim whitespace for accurate comparison
 	trimmedCommentBody := strings.TrimSpace(commentBody)
-	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + warningMessage + reportFooter)
+	trimmedHeaderAndFooter := strings.TrimSpace(reportHeader + reportFooter)
 
 	// Check if the comment body has more content than just the header and footer combined
 	if len(trimmedCommentBody) > len(trimmedHeaderAndFooter) {
@@ -139,11 +135,6 @@ func ProcessDependency(dep string, ecosystem string, scoreThreshold float64) (st
 		log.Printf("Processing result for dependency: %s\n", dep)
 	}
 
-	// Check if the Trusty score is greater than the scoreThreshold
-	if result.Summary.Score > scoreThreshold {
-		log.Printf("Skipping dependency %s due to score %.2f being above the threshold %.2f\n", dep, result.Summary.Score, scoreThreshold)
-		return "", shouldFail // shouldFail is false here, nothing to see.
-	}
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: Dependency: [`%s`](https://www.trustypkg.dev/%s/%s)\n", dep, ecosystem, dep))
 	// Highlight if the package is malicious, deprecated or archived
