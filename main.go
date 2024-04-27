@@ -32,19 +32,42 @@ import (
 	"golang.org/x/oauth2"
 )
 
+func parseScore(scoreStr string, defaultScore string) float64 {
+	if scoreStr == "" {
+		scoreStr = defaultScore
+	}
+	score, err := strconv.ParseFloat(scoreStr, 64)
+	if err != nil {
+		log.Printf("Invalid score threshold value: %s\n", scoreStr)
+		return 0
+	}
+	return score
+}
+
+func parseFail(failStr string, defaultFail string) bool {
+	if failStr == "" {
+		failStr = defaultFail
+	}
+	fail, err := strconv.ParseBool(failStr)
+	if err != nil {
+		log.Printf("Invalid fail value: %s\n", failStr)
+		return false
+	}
+	return fail
+}
+
 func main() {
 	ctx := context.Background()
 
-	scoreThresholdStr := os.Getenv("INPUT_SCORE_THRESHOLD")
-	if scoreThresholdStr == "" {
-		log.Println("No score threshold provided, using default value.")
-		scoreThresholdStr = "5" // Ensure this default value is appropriate (check with DS team)
-	}
-	scoreThreshold, err := strconv.ParseFloat(scoreThresholdStr, 64)
-	if err != nil {
-		log.Printf("Invalid score threshold value: %s\n", scoreThresholdStr)
-		return
-	}
+	globalThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_GLOBAL"), "5")
+	repoActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_REPO_ACTIVITY"), "0")
+	authorActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_AUTHOR_ACTIVITY"), "0")
+	provenanceThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_PROVENANCE"), "0")
+	typosquattingThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_TYPOSQUATTING"), "0")
+
+	failOnMalicious := parseFail(os.Getenv("INPUT_FAIL_ON_MALICIOUS"), "true")
+	failOnDeprecated := parseFail(os.Getenv("INPUT_FAIL_ON_DEPRECATED"), "true")
+	failOnArchived := parseFail(os.Getenv("INPUT_FAIL_ON_ARCHIVED"), "true")
 
 	// Split the GITHUB_REPOSITORY environment variable to get owner and repo
 	repoFullName := os.Getenv("GITHUB_REPOSITORY")
@@ -168,7 +191,8 @@ func main() {
 		log.Printf("Added dependencies: %v\n", addedDepNames)
 
 		// In your main application where you call ProcessDependencies
-		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, scoreThreshold)
+		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
+			failOnMalicious, failOnDeprecated, failOnArchived)
 
 	}
 }
