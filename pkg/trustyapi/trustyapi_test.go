@@ -7,6 +7,19 @@ import (
 	"time"
 )
 
+func TestReportBuilder(t *testing.T) {
+	dependencies := []string{"next", "react", "bugsnagmw", "scriptoni", "notifyjs"}
+
+	result, failAction := GenerateReportContent(dependencies, "npm", 5.0, 5.0, 5.0, 5.0, 5.0, true, true, true)
+	// fmt.Println(result) // this is normally used to display and validate the report output, uncomment for debugging
+	if result == "" {
+		t.Errorf("Report is empty")
+	}
+	if !failAction {
+		t.Errorf("Fail action is false")
+	}
+}
+
 func TestProcessGoDependencies(t *testing.T) {
 	ecosystem := "go"
 	scoreThreshold := 5.0
@@ -76,13 +89,13 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 	if !strings.Contains(report, "sigstore") {
 		t.Errorf("Expected report to contain 'sigstore'")
 	}
-	if !strings.Contains(report, "Source repo: `https://github.com/sigstore/sigstore-js`") {
+	if !strings.Contains(report, "https://github.com/sigstore/sigstore-js") {
 		t.Errorf("Source repo not matching")
 	}
-	if !strings.Contains(report, "Github Action Workflow: `.github/workflows/release.yml`") {
+	if !strings.Contains(report, ".github/workflows/release.yml") {
 		t.Errorf("Github workflow not matching")
 	}
-	if !strings.Contains(report, "Issuer: `CN=sigstore-intermediate,O=sigstore.dev`") {
+	if !strings.Contains(report, "CN=sigstore-intermediate,O=sigstore.dev") {
 		t.Errorf("Issuer not matching")
 	}
 }
