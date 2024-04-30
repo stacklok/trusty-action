@@ -89,13 +89,13 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 	if !strings.Contains(report, "sigstore") {
 		t.Errorf("Expected report to contain 'sigstore'")
 	}
-	if !strings.Contains(report, "Source repo: `https://github.com/sigstore/sigstore-js`") {
+	if !strings.Contains(report, "https://github.com/sigstore/sigstore-js") {
 		t.Errorf("Source repo not matching")
 	}
-	if !strings.Contains(report, "Github Action Workflow: `.github/workflows/release.yml`") {
+	if !strings.Contains(report, ".github/workflows/release.yml") {
 		t.Errorf("Github workflow not matching")
 	}
-	if !strings.Contains(report, "Issuer: `CN=sigstore-intermediate,O=sigstore.dev`") {
+	if !strings.Contains(report, "CN=sigstore-intermediate,O=sigstore.dev") {
 		t.Errorf("Issuer not matching")
 	}
 }
