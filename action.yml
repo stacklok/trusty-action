@@ -4,40 +4,38 @@ inputs:
   GITHUB_TOKEN:
     description: "GitHub token"
     required: true
-  thresholds:
-    global:
-      description: "Raise global score below this score as an issue"
-      required: false
-      default: 5
-    repo_activity:
-      description: "Raise repo activity below this score as an issue"
-      required: false
-      default: 0
-    author_activity:
-      description: "Raise author activity below this score as an issue"
-      required: false
-      default: 0
-    provenance:
-      description: "Raise provenance below this score as an issue"
-      required: false
-      default: 0
-    typosquatting:
-      description: "Raise typosquatting below this score as an issue"
-      required: false
-      default: 0
-    fail_on:
-      malicious:
-        description: "Fail if package is malicious"
-        required: false
-        default: true
-      deprecated:
-        description: "Fail if package is deprecated"
-        required: false
-        default: true
-      archived:
-        description: "Fail if repo is archived"
-        required: false
-        default: true
+  global_threshold:
+    description: "Raise global score below this score as an issue"
+    required: false
+    default: 5
+  repo_activity_threshold:
+    description: "Raise repo activity below this score as an issue"
+    required: false
+    default: 0
+  author_activity_threshold:
+    description: "Raise author activity below this score as an issue"
+    required: false
+    default: 0
+  provenance_threshold:
+    description: "Raise provenance below this score as an issue"
+    required: false
+    default: 0
+  typosquatting_threshold:
+    description: "Raise typosquatting below this score as an issue"
+    required: false
+    default: 0
+  fail_on_malicious:
+    description: "Fail if package is malicious"
+    required: false
+    default: true
+  fail_on_deprecated:
+    description: "Fail if package is deprecated"
+    required: false
+    default: true
+  fail_on_archived:
+    description: "Fail if repo is archived"
+    required: false
+    default: true
 runs:
   using: "docker"
   image: "Dockerfile"

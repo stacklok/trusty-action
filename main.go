@@ -59,11 +59,11 @@ func parseFail(failStr string, defaultFail string) bool {
 func main() {
 	ctx := context.Background()
 
-	globalThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_GLOBAL"), "5")
-	repoActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_REPO_ACTIVITY"), "0")
-	authorActivityThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_AUTHOR_ACTIVITY"), "0")
-	provenanceThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_PROVENANCE"), "0")
-	typosquattingThreshold := parseScore(os.Getenv("INPUT_THRESHOLDS_TYPOSQUATTING"), "0")
+	globalThreshold := parseScore(os.Getenv("INPUT_GLOBAL_THRESHOLD"), "5")
+	repoActivityThreshold := parseScore(os.Getenv("INPUT_REPO_ACTIVITY_THRESHOLD"), "0")
+	authorActivityThreshold := parseScore(os.Getenv("INPUT_AUTHOR_ACTIVITY_THRESHOLD"), "0")
+	provenanceThreshold := parseScore(os.Getenv("INPUT_PROVENANCE_THRESHOLD"), "0")
+	typosquattingThreshold := parseScore(os.Getenv("INPUT_TYPOSQUATTING_THRESHOLD"), "0")
 
 	failOnMalicious := parseFail(os.Getenv("INPUT_FAIL_ON_MALICIOUS"), "true")
 	failOnDeprecated := parseFail(os.Getenv("INPUT_FAIL_ON_DEPRECATED"), "true")
