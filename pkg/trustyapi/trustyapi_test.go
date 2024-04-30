@@ -7,6 +7,19 @@ import (
 	"time"
 )
 
+func TestReportBuilder(t *testing.T) {
+	dependencies := []string{"next", "react", "bugsnagmw", "scriptoni", "notifyjs"}
+
+	result, failAction := GenerateReportContent(dependencies, "npm", 5.0, 5.0, 5.0, 5.0, 5.0, true, true, true)
+	// fmt.Println(result) // this is normally used to display and validate the report output, uncomment for debugging
+	if result == "" {
+		t.Errorf("Report is empty")
+	}
+	if !failAction {
+		t.Errorf("Fail action is false")
+	}
+}
+
 func TestProcessGoDependencies(t *testing.T) {
 	ecosystem := "go"
 	scoreThreshold := 5.0
