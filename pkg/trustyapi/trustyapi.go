@@ -157,7 +157,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	shouldFail := false
 
 	// Construct the query URL for the API request
-	baseURL := "https://api.trustypkg.dev/v1/report"
+	baseURL := "https://gh.trustypkg.dev/v1/report"
 	queryParams := url.Values{}
 	queryParams.Add("package_name", dep)
 	queryParams.Add("package_type", ecosystem)
@@ -166,7 +166,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	// Create a channel for receiving the result
 	resultChan := make(chan Package)
 
-	// Make the API request to api.trustypkg.dev
+	// Make the API request to gh.trustypkg.dev
 	fetchPackageData(requestURL, dep, ecosystem, resultChan)
 
 	// Wait for the result
