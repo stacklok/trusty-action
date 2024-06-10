@@ -245,7 +245,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		}
 
 		reportBuilder.WriteString("<table style='width:100%; border-collapse: collapse;'>\n")
-		reportBuilder.WriteString("<tr style='background-color: #f2f2f2;'><th style='text-align: left; padding: 8px;'>Attribute</th><th style='text-align: left; padding: 8px;'>Details</th></tr>\n")
+		reportBuilder.WriteString("<tr style='background-color: #f2f2f2;'><th style='text-align: left; padding: 8px;'>Attribute</th><th style='text-align: left; padding: 8px;'>Count</th></tr>\n")
 		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of versions</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Versions))
 		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of Git Tags/Releases</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Tags))
 		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of versions matched to Git Tags/Releases</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Common))
