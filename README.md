@@ -2,17 +2,18 @@
 
 Get a security and quality analysis of your dependencies with TrustyPkg!
 
-Trusty is a dependency analysis tool that provides a comprehensive security and
-quality analysis of your dependencies. This action integrates Trusty into your
-GitHub workflow, allowing you to automatically check the quality of your
-dependencies on every pull request.
+[Trusty](https://trustypkg.dev/), by [Stacklok](https://stacklok.com) is a 
+dependency analysis tool that provides security and quality analysis of your
+dependencies. This action integrates Trusty into your GitHub workflow,
+allowing you to automatically check the quality and safety of your dependencies
+on every pull request.
 
-Trusty is a service by [stacklok](https://stacklok.com) which analyses thousands
-of packages across multiple languages to provide a comprehensive security
-and quality analysis of your dependencies. 
-
-Trusty uses a combination of static analysis, machine learning, and malware
-detection to provide a comprehensive analysis of your dependencies.
+The Trusty service used by this action is analyses thousands of packages a day
+across multiple languages to provide a comprehensive security and quality
+analysis of your dependencies. Every dependency released by open source developers
+are ran through a series of static analysis, machine learning, and malware
+detection checks to capture any potential security risks or quality issues and
+protect your codebase from malicious or low-quality dependencies.
 
 
 ![Main Pull Request](docs/main.png)

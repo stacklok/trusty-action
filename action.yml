@@ -1,5 +1,9 @@
-name: "TrustyPkg Action"
-description: "Run Trusty against your dependencies for supply chain risks"
+name: "Trusty Dependency Safety Check"
+description: "Ensure your dependencies are safe and trustworthy"
+author: "Trusty Team at Stacklok"
+branding:
+  icon: "alert-triangle"
+  color: "yellow"
 inputs:
   GITHUB_TOKEN:
     description: "GitHub token"
