@@ -2,17 +2,20 @@
 
 Get a security and quality analysis of your dependencies with TrustyPkg!
 
-![alt text](docs/image.png)
+Trusty is a dependency analysis tool that provides a comprehensive security and
+quality analysis of your dependencies. This action integrates Trusty into your
+GitHub workflow, allowing you to automatically check the quality of your
+dependencies on every pull request.
 
-## Features
+Trusty is a service by [stacklok](https://stacklok.com) which analyses thousands
+of packages across multiple languages to provide a comprehensive security
+and quality analysis of your dependencies. 
 
-* Check if the dependencies are malicious, deprecated or archived
-* Assess the quality and security of your dependencies using TrustyPkg
-  activity hueristics
-* See if it contains a source of origin to a legitimate code repository using
-  sigstore and Trusty's historical provenance algorithm
-* Understand if the package is a possible typo squatting attack
-* Get a list of recommended alternatives to the dependency
+Trusty uses a combination of static analysis, machine learning, and malware
+detection to provide a comprehensive analysis of your dependencies.
+
+
+![Main Pull Request](docs/main.png)
 
 ## Overview
 
@@ -30,6 +33,23 @@ Full Language Support (inline with Trusty):
 * Rust
 * Go
 
+## Features
+
+Check if the dependencies are malicious, deprecated or archived
+
+![Malicious Package](docs/malicious.png)
+
+Check if the dependencies are deprecated or archived (and get altnernative recommendations)
+
+![Archived Package](docs/archived.png)
+
+Check if the package has a proven source of origin provenance map (using sigstore or Git Tag / Release mapping)
+
+![Provenance Package](docs/prov.png)
+
+Assess the activity and security risks of the package (using Trusty's hueristics engine)
+
+![Activity Package](docs/activity.png)
 
 ## Usage
 
@@ -64,5 +84,29 @@ jobs:
 
 Only one input is available for this action:
 
-`score_threshold`: The minimum score required for a dependency to be considered
+`global_threshold`: The minimum score required for a dependency to be considered
 high quality. Anything below this score will fail the action.
+
+
+`repo_activity_threshold`: The minimum score required for a repo to be considered
+actively maintained. Anything below this score will fail the action.
+
+`author_activity_threshold`: The minimum score required for an author to be considered
+actively maintaining their packages. Anything below this score will fail the action.
+
+`provenance_threshold`: The minimum score required for a package to have a proven source
+of origin. Anything below this score will fail the action.
+
+`typosquatting_threshold`: The minimum score required for a package to be considered
+not typosquatting. Anything below this score will fail the action.
+
+`fail_on_malicious`: Whether to fail the action if a package is malicious. Default is `true`.
+
+`fail_on_deprecated`: Whether to fail the action if a package is deprecated. Default is `true`.
+
+`fail_on_archived`: Whether to fail the action if a package is archived. Default is `true`.
+
+## Like this action?
+
+If you like this action, please consider starring the repository and sharing it with your friends! You can also follow us on Twitter at [@trustypkg](https://twitter.com/trustypkg) for updates and news about TrustyPkg!
+
