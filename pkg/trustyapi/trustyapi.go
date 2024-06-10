@@ -31,83 +31,129 @@ import (
 	"github.com/google/go-github/v60/github"
 )
 
-type DependencyDetails struct {
-	Name         string
-	Score        float64
-	IsMalicious  bool
-	IsDeprecated bool
-	IsArchived   bool
-}
-
 func GenerateReportContent(dependencies []string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
 	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool) {
-
 	var (
-		failedReports  []string
-		successReports []string
-		failedDetails  []string
-		successDetails []string
-		failAction     bool
+		failedReportBuilder strings.Builder
+		failAction          bool // Flag to track if the GitHub Action should fail
 	)
 
-	// Process each dependency and categorize them
+	failedReportBuilder.WriteString("### ❌ Failed Dependency Checks\n\n")
+
+	// The following loop generates the report for each dependency and then adds
+	// it to the existing reportBuilder, between the header and footer.
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, shouldFail, depDetails := ProcessDependency(dep, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
+		report, shouldFail := ProcessDependency(dep, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
 			failOnMalicious, failOnDeprecated, failOnArchived)
 
-		depDetailsReport := fmt.Sprintf("<a id='details-%s'></a>\n%s\n\n", depDetails.Name, report)
-
 		if shouldFail {
+			if strings.TrimSpace(report) != "" {
+				failedReportBuilder.WriteString(report)
+			}
 			failAction = true
-			failedReports = append(failedReports, fmt.Sprintf("| [%s](#details-%s) | %.2f | %v | %v | %v |\n", depDetails.Name, depDetails.Name, depDetails.Score, getBoolIcon(depDetails.IsMalicious, true),
-				getBoolIcon(depDetails.IsArchived, true), getBoolIcon(depDetails.IsDeprecated, true)))
-			failedDetails = append(failedDetails, depDetailsReport)
-		} else {
-			successReports = append(successReports, fmt.Sprintf("| [%s](#details-%s) | %.2f |\n", depDetails.Name, depDetails.Name, depDetails.Score))
-			successDetails = append(successDetails, depDetailsReport)
 		}
 	}
 
-	// Build the final report
-	var finalReportBuilder strings.Builder
-	finalReportBuilder.WriteString("## 🐻 Trusty Dependency Analysis Action Report \n\n")
-	finalReportBuilder.WriteString("## 🔴 Failed Dependencies Summary\n\n| Name | Trusty Score | Malicious | Archived | Deprecated |\n| ---- | ------------ | --------- | -------- | ----------- |\n")
-	for _, report := range failedReports {
-		finalReportBuilder.WriteString(report)
-	}
-	finalReportBuilder.WriteString("## 🟢 Successful Dependencies Summary\n\n| Name | Trusty Score |\n| ---- | ------------ |\n")
-	for _, report := range successReports {
-		finalReportBuilder.WriteString(report)
-	}
-	finalReportBuilder.WriteString("\n### Detailed Information for Failed Dependencies\n")
-	for _, detail := range failedDetails {
-		finalReportBuilder.WriteString(detail)
-	}
-	finalReportBuilder.WriteString("\n### Detailed Information for Successful Dependencies\n")
-	for _, detail := range successDetails {
-		finalReportBuilder.WriteString(detail)
+	finalReportBuilder := strings.Builder{}
+	finalReportBuilder.WriteString("## Trusty Dependency Analysis Action \n\n")
+	finalReportBuilder.WriteString("> 🚀 Trusty Dependency Analysis Action has completed an analysis of the dependencies in this PR.\n\n")
+	if failedReportBuilder.Len() > len("### ❌ Failed Dependency Checks\n\n") {
+		finalReportBuilder.WriteString(failedReportBuilder.String())
+		finalReportBuilder.WriteString("\n")
 	}
 
-	finalReportBuilder.WriteString("\n> 🌟 If you like this action, why not try out [Minder](https://github.com/stacklok/minder), the secure supply chain platform. It has vastly more protections and is also free (as in :beer:) to opensource projects.\n")
+	finalReportBuilder.WriteString("> 🌟 If you like this action, why not try out [Minder](https://github.com/stacklok/minder), the secure supply chain platform. It has vastly more protections and is also free (as in :beer:) to opensource projects.\n")
 
-	return finalReportBuilder.String(), failAction
+	// Build the comment body from the report builder
+	commentBody := finalReportBuilder.String()
+
+	return commentBody, failAction
+
 }
 
+// BuildReport analyzes the dependencies of a PR and generates a report based on their Trusty scores.
+// It takes the following parameters:
+// - ctx: The context.Context for the function.
+// - ghClient: A pointer to a github.Client for interacting with the GitHub API.
+// - owner: The owner of the repository.
+// - repo: The name of the repository.
+// - prNumber: The number of the pull request.
+// - dependencies: A slice of strings representing the dependencies to be analyzed.
+// - ecosystem: The ecosystem of the dependencies (e.g., "npm", "pip", "maven").
+// - scoreThreshold: The threshold for Trusty scores below which a warning will be generated.
+//
+// The function generates a report and posts it as a comment on the pull request.
+func BuildReport(ctx context.Context,
+	ghClient *github.Client,
+	owner,
+	repo string,
+	prNumber int,
+	dependencies []string,
+	ecosystem string,
+	globalThreshold float64,
+	repoActivityThreshold float64,
+	authorActivityThreshold float64,
+	provenanceThreshold float64,
+	typosquattingThreshold float64,
+	failOnMalicious bool,
+	failOnDeprecated bool,
+	failOnArchived bool) {
+
+	reportContent, failAction := GenerateReportContent(dependencies, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
+		failOnMalicious, failOnDeprecated, failOnArchived)
+
+	if strings.TrimSpace(reportContent) != "## Trusty Dependency Analysis Action \n\n" {
+		_, _, err := ghClient.Issues.CreateComment(ctx, owner, repo, prNumber, &github.IssueComment{Body: &reportContent})
+		if err != nil {
+			log.Printf("error posting comment to PR: %v\n", err)
+		} else {
+			log.Printf("posted comment to PR: %s/%s#%d\n", owner, repo, prNumber)
+		}
+	} else {
+		log.Println("No report content to post, skipping comment.")
+	}
+
+	if failAction {
+		log.Println("Failing the GitHub Action due to dependencies not meeting the required criteria.")
+		os.Exit(1)
+	}
+}
+
+// repoActivityThreshold represents the threshold value for repository activity.
+// It is used to determine if a subfield has failed based on the repository's activity level.
+// The value should be a float64 between 0 and 1, where 0 represents no activity and 1 represents maximum activity.
+// Higher values indicate a higher threshold for considering a subfield as failed.
+// Lower values indicate a lower threshold for considering a subfield as failed.
+// The default value is 0.5.
+// Example usage: hasAnySubfieldFailed(result, 0.5, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
+// Returns true if any subfield has failed based on the repository's activity level, false otherwise.
+// ...
+func hasAnySubfieldFailed(result Package, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold float64) bool {
+	return result.Summary.Description.ActivityRepo < repoActivityThreshold ||
+		result.Summary.Description.ActivityUser < authorActivityThreshold ||
+		result.Summary.Description.Provenance < provenanceThreshold ||
+		result.Summary.Description.Typosquatting < typosquattingThreshold
+}
+
+// getScoreIcon returns an icon based on the score and threshold.
+// If the score is greater than or equal to the threshold, it returns "✅",
+// otherwise it returns "❌".
 func getScoreIcon(score float64, threshold float64) string {
-	scoreIcon := ":white_check_mark:"
-	if score < threshold {
-		scoreIcon = ":x:"
+	if score >= threshold {
+		return "✅"
 	}
-	return scoreIcon
+	return "❌"
 }
 
+// getBoolIcon returns an icon string based on the boolean value and fail flag.
+// If the boolean value is true and the fail flag is true, it returns "❌".
+// Otherwise, it returns "✅".
 func getBoolIcon(b bool, fail bool) string {
-	icon := ":white_check_mark:"
 	if b && fail {
-		icon = ":x:"
+		return "❌"
 	}
-	return icon
+	return "✅"
 }
 
 // processDependency analyzes a dependency by making an API request to TrustyPkg.dev and returns a formatted report.
@@ -118,9 +164,8 @@ func getBoolIcon(b bool, fail bool) string {
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
 func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
-	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool, DependencyDetails) {
+	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool) {
 	var reportBuilder strings.Builder
-	var details DependencyDetails
 	shouldFail := false
 
 	// Construct the query URL for the API request
@@ -145,43 +190,31 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		log.Printf("Processing result for dependency: %s\n", dep)
 	}
 
-	details = DependencyDetails{
-		Name:         dep,
-		Score:        result.Summary.Score,
-		IsMalicious:  result.PackageData.Origin == "malicious",
-		IsDeprecated: result.PackageData.IsDeprecated,
-		IsArchived:   result.PackageData.Archived,
-	}
 	// Format the report using Markdown
-	if result.Provenance.Description.Provenance.Issuer != "" {
-		reportBuilder.WriteString("| | | |\n")
-		reportBuilder.WriteString("| --- | --- | --- |\n")
-	} else {
-		reportBuilder.WriteString("| | |\n")
-		reportBuilder.WriteString("| --- | --- |\n")
-
-	}
-	reportBuilder.WriteString(fmt.Sprintf("| <a href='https://www.trustypkg.dev/%s/%s'><h3>%s</h3></a> | %.2f |", ecosystem, dep, dep, result.Summary.Score))
-	if result.Provenance.Description.Provenance.Issuer != "" {
-		reportBuilder.WriteString("<img src='https://cd.foundation/wp-content/uploads/sites/78/2023/05/sigstore_stacked-color-1024x698.png' alt='Sigstore' height='25'> |")
-	}
-	reportBuilder.WriteString("<br />\n")
+	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://www.trustypkg.dev/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
 
 	// Highlight if the package is malicious, deprecated or archived
 	if result.PackageData.Origin == "malicious" {
-		reportBuilder.WriteString(fmt.Sprintf("| ⚠ **Malicious** (This package is marked as Malicious. Proceed with extreme caution!) | %s |\n", getBoolIcon(result.PackageData.Origin == "malicious", failOnMalicious)))
+		reportBuilder.WriteString(fmt.Sprintf("⚠ **Malicious** (This package is marked as Malicious. Proceed with extreme caution!) %s\n", getBoolIcon(result.PackageData.Origin == "malicious", failOnMalicious)))
 	}
 	if result.PackageData.IsDeprecated {
-		reportBuilder.WriteString(fmt.Sprintf("| ⚠ **Deprecated** (This package is marked as Deprecated. Proceed with caution!) | %s |\n", getBoolIcon(result.PackageData.IsDeprecated, failOnDeprecated)))
+		reportBuilder.WriteString(fmt.Sprintf("⚠ **Deprecated** (This package is marked as Deprecated. Proceed with caution!) %s\n", getBoolIcon(result.PackageData.IsDeprecated, failOnDeprecated)))
 	}
 
 	if result.PackageData.Archived {
-		reportBuilder.WriteString(fmt.Sprintf("| ⚠ **Archived** (This package is marked as Archived. Proceed with caution!) | %s |\n", getBoolIcon(result.PackageData.Archived, failOnArchived)))
+		reportBuilder.WriteString(fmt.Sprintf("⚠ **Archived** (This package is marked as Archived. Proceed with caution!) %s\n", getBoolIcon(result.PackageData.Archived, failOnArchived)))
+	}
+
+	// Check if any subfields have failed
+	subfieldFailed := hasAnySubfieldFailed(result, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
+	summaryIcon := "✅"
+	if subfieldFailed || result.Summary.Score < globalThreshold {
+		summaryIcon = "❌"
 	}
 
 	// scores
 	reportBuilder.WriteString("<details>\n")
-	reportBuilder.WriteString(fmt.Sprintf("<summary><b>Trusty Score: %.2f %s</b></summary><br />\n\n", result.Summary.Score, getScoreIcon(result.Summary.Score, globalThreshold)))
+	reportBuilder.WriteString(fmt.Sprintf("<summary>📉 <b>Trusty Score: %.2f %s</b></summary>\n\n", result.Summary.Score, summaryIcon))
 	reportBuilder.WriteString("| Category | Score | Passed |\n")
 	reportBuilder.WriteString("| --- | --- | --- |\n")
 	reportBuilder.WriteString(fmt.Sprintf("| Repo activity   | `%.2f` | %s |\n", result.Summary.Description.ActivityRepo, getScoreIcon(result.Summary.Description.ActivityRepo, repoActivityThreshold)))
@@ -192,32 +225,39 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 
 	// write provenance information
 	reportBuilder.WriteString("<details>\n")
-	reportBuilder.WriteString("<summary><strong>Proof of origin (Provenance)</strong></summary>\n\n") // Ensure two newlines after summary
-
 	if result.Provenance.Description.Provenance.Issuer != "" {
-		reportBuilder.WriteString("Built and signed with sigstore using GitHub Actions.<br />\n\n")
-		reportBuilder.WriteString("| | |\n")
-		reportBuilder.WriteString("| --- | --- |\n")
-		reportBuilder.WriteString(fmt.Sprintf("| Source repo | %s |\n", result.Provenance.Description.Provenance.SourceRepo))
-		reportBuilder.WriteString(fmt.Sprintf("| Github Action Workflow | %s |\n", result.Provenance.Description.Provenance.Workflow))
-		reportBuilder.WriteString(fmt.Sprintf("| Issuer | %s |\n", result.Provenance.Description.Provenance.Issuer))
-		reportBuilder.WriteString(fmt.Sprintf("| Rekor Public Ledger | %s |\n", result.Provenance.Description.Provenance.Transparency))
+		reportBuilder.WriteString("<summary><strong>Proof of origin (Sigstore)</strong>&nbsp;&nbsp;&nbsp;<span style='color: green;'>✅</span></summary>\n\n\n")
+		reportBuilder.WriteString("<p>Built and signed with sigstore using GitHub Actions.</p>\n")
+		reportBuilder.WriteString("<table style='width:100%; border-collapse: collapse;'>\n")
+		reportBuilder.WriteString("<tr style='background-color: #f2f2f2;'><th style='text-align: left; padding: 8px;'>Attribute</th><th style='text-align: left; padding: 8px;'>Details</th></tr>\n")
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Source repo</td><td style='padding: 8px; border: 1px solid #ddd;'><a href='%s' target='_blank'>%s</a></td></tr>\n", result.Provenance.Description.Provenance.SourceRepo, result.Provenance.Description.Provenance.SourceRepo))
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Github Action Workflow</td><td style='padding: 8px; border: 1px solid #ddd;'>%s</td></tr>\n", result.Provenance.Description.Provenance.Workflow))
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Issuer</td><td style='padding: 8px; border: 1px solid #ddd;'>%s</td></tr>\n", result.Provenance.Description.Provenance.Issuer))
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Rekor Public Ledger</td><td style='padding: 8px; border: 1px solid #ddd;'><a href='%s' target='_blank'>%s</a></td></tr>\n", result.Provenance.Description.Provenance.Transparency, result.Provenance.Description.Provenance.Transparency))
 	} else {
 		// need to write regular provenance info
-		reportBuilder.WriteString("<br />\n\n")
-		reportBuilder.WriteString("| | |\n")
-		reportBuilder.WriteString("| --- | --- |\n")
-		reportBuilder.WriteString(fmt.Sprintf("| Number of versions | %.0f |\n", result.Provenance.Description.Hp.Versions))
-		reportBuilder.WriteString(fmt.Sprintf("| Number of Git Tags/Releases | %.0f |\n", result.Provenance.Description.Hp.Tags))
-		reportBuilder.WriteString(fmt.Sprintf("| Number of versions matched to Git Tags/Releases | %.0f |\n", result.Provenance.Description.Hp.Common))
+		if result.Provenance.Description.Hp.Common > 2 {
+			reportBuilder.WriteString("<summary><strong>Proof of origin (Git Tags)</strong>&nbsp;&nbsp;&nbsp;<span style='color: green;'>✅</span></summary>\n\n\n")
+			reportBuilder.WriteString("<p>This package can be mapped to the source code repository, based on the density of Git tags/releases.</p>\n")
+		} else {
+			reportBuilder.WriteString("<summary><strong>Proof of origin (Git Tags)</strong>&nbsp;&nbsp;<span style='color: red;'>❌</span> (failed)</summary>\n\n")
+			reportBuilder.WriteString("<p>This package could not be mapped to the source code repository based on the density of Git tags/releases.</p>\n")
+		}
+
+		reportBuilder.WriteString("<table style='width:100%; border-collapse: collapse;'>\n")
+		reportBuilder.WriteString("<tr style='background-color: #f2f2f2;'><th style='text-align: left; padding: 8px;'>Attribute</th><th style='text-align: left; padding: 8px;'>Count</th></tr>\n")
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of versions</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Versions))
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of Git Tags/Releases</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Tags))
+		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of versions matched to Git Tags/Releases</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Common))
 	}
-	reportBuilder.WriteString("\n[Learn more about source of origin provenance](https://docs.stacklok.com/trusty/understand/provenance)\n") // Ensure newlines around this link
+	reportBuilder.WriteString("</table>\n")
+	reportBuilder.WriteString("\n<p><a href='https://docs.stacklok.com/trusty/understand/provenance'>Learn more about source of origin provenance</a></p>\n")
 	reportBuilder.WriteString("</details>\n")
 
 	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
 	if result.Alternatives.Packages != nil && len(result.Alternatives.Packages) > 0 {
 		reportBuilder.WriteString("<details>\n")
-		reportBuilder.WriteString("<summary><strong>Alternative Packages</strong> 💡</summary><br />\n\n")
+		reportBuilder.WriteString("<summary><strong>Alternative Package Recommendations</strong> 💡</summary>\n\n")
 		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
 		reportBuilder.WriteString("| ------- | ----- | ---------- |\n")
 		for _, alt := range result.Alternatives.Packages {
@@ -241,7 +281,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		shouldFail = true
 	}
 
-	return reportBuilder.String(), shouldFail, details
+	return reportBuilder.String(), shouldFail
 }
 
 // fetchPackageData fetches package data from the specified request URL for a given dependency and ecosystem.
@@ -302,52 +342,4 @@ func fetchPackageData(requestURL, dep, ecosystem string, resultChan chan<- Packa
 			}
 		}
 	}()
-}
-
-// BuildReport analyzes the dependencies of a PR and generates a report based on their Trusty scores.
-// It takes the following parameters:
-// - ctx: The context.Context for the function.
-// - ghClient: A pointer to a github.Client for interacting with the GitHub API.
-// - owner: The owner of the repository.
-// - repo: The name of the repository.
-// - prNumber: The number of the pull request.
-// - dependencies: A slice of strings representing the dependencies to be analyzed.
-// - ecosystem: The ecosystem of the dependencies (e.g., "npm", "pip", "maven").
-// - scoreThreshold: The threshold for Trusty scores below which a warning will be generated.
-//
-// The function generates a report and posts it as a comment on the pull request.
-func BuildReport(ctx context.Context,
-	ghClient *github.Client,
-	owner,
-	repo string,
-	prNumber int,
-	dependencies []string,
-	ecosystem string,
-	globalThreshold float64,
-	repoActivityThreshold float64,
-	authorActivityThreshold float64,
-	provenanceThreshold float64,
-	typosquattingThreshold float64,
-	failOnMalicious bool,
-	failOnDeprecated bool,
-	failOnArchived bool) {
-
-	reportContent, failAction := GenerateReportContent(dependencies, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
-		failOnMalicious, failOnDeprecated, failOnArchived)
-
-	if strings.TrimSpace(reportContent) != "## 🐻 Trusty Dependency Analysis Action Report \n\n" {
-		_, _, err := ghClient.Issues.CreateComment(ctx, owner, repo, prNumber, &github.IssueComment{Body: &reportContent})
-		if err != nil {
-			log.Printf("error posting comment to PR: %v\n", err)
-		} else {
-			log.Printf("posted comment to PR: %s/%s#%d\n", owner, repo, prNumber)
-		}
-	} else {
-		log.Println("No report content to post, skipping comment.")
-	}
-
-	if failAction {
-		log.Println("Failing the GitHub Action due to dependencies not meeting the required criteria.")
-		os.Exit(1)
-	}
 }

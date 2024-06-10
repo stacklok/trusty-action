@@ -35,12 +35,9 @@ func TestProcessGoDependencies(t *testing.T) {
 
 	for i, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, shouldFail, dependencyDetails := ProcessDependency(dep, ecosystem, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold, scoreThreshold, true, true, true)
+		report, shouldFail := ProcessDependency(dep, ecosystem, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold, scoreThreshold, true, true, true)
 		if shouldFail != expectedFail[i] {
 			t.Errorf("Dependency %s failed check unexpectedly, expected %v, got %v", dep, expectedFail[i], shouldFail)
-		}
-		if dependencyDetails.Name != dep {
-			t.Errorf("Dependency name mismatch, expected %s, got %s", dep, dependencyDetails.Name)
 		}
 		if dep == "github.com/Tinkoff/libvirt-exporter" {
 			if !strings.Contains(report, "Archived") {
@@ -60,7 +57,7 @@ func TestProcessDeprecatedDependencies(t *testing.T) {
 
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, _, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
+		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 		if !strings.Contains(report, "Deprecated") {
 			t.Errorf("Expected report to contain 'Deprecated' for %s", dep)
 		}
@@ -76,7 +73,7 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
-		report, _, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
+		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 		if !strings.Contains(report, "Malicious") {
 			t.Errorf("Expected report to contain 'Malicious' for %s", dep)
 		}
@@ -88,7 +85,7 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 	ecosystem := "npm"
 	scoreThreshold := 5.0
 
-	report, _, _ := ProcessDependency("sigstore", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
+	report, _ := ProcessDependency("sigstore", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 	if !strings.Contains(report, "sigstore") {
 		t.Errorf("Expected report to contain 'sigstore'")
 	}
@@ -107,7 +104,7 @@ func TestProcessHistoricalProvenance(t *testing.T) {
 	ecosystem := "npm"
 	scoreThreshold := 5.0
 
-	report, _, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
+	report, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 	if !strings.Contains(report, "Number of versions") {
 		t.Errorf("Versions for historical provenance not populated")
 	}
