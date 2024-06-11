@@ -2,6 +2,7 @@ package parser
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 
 	"github.com/stacklok/trusty-action/pkg/types"
@@ -72,6 +73,10 @@ func TestParse(t *testing.T) {
 
 	for _, test := range tests {
 		deps, ecosystem, err := Parse(test.filename, test.content)
+
+		sort.Slice(deps, func(i, j int) bool { return deps[i].Name < deps[j].Name })
+		sort.Slice(test.expected, func(i, j int) bool { return test.expected[i].Name < test.expected[j].Name })
+
 		if !reflect.DeepEqual(deps, test.expected) {
 			t.Errorf("Expected dependencies %v, but got %v", test.expected, deps)
 		}
