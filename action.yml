@@ -1,6 +1,6 @@
-name: "Trusty Dependency Safety Check"
-description: "Ensure your dependencies are safe and trustworthy"
-author: "Trusty Team at Stacklok"
+name: "Trusty Dependency Risk Action"
+description: "Check the quality and safety of your dependencies on every pull request"
+author: "Stacklok"
 branding:
   icon: "alert-triangle"
   color: "yellow"
