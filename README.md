@@ -1,19 +1,17 @@
-# Trusty Dependency Analysis Action
+# Trusty Dependency Risk Action
 
-Get a security and quality analysis of your dependencies with TrustyPkg!
+### Check the quality and safety of dependencies in pull requests
 
-[Trusty](https://trustypkg.dev/), by [Stacklok](https://stacklok.com) is a 
-dependency analysis tool that provides security and quality analysis of your
-dependencies. This action integrates Trusty into your GitHub workflow,
+[Trusty](https://trustypkg.dev/) by [Stacklok](https://stacklok.com) is a free-to-use service that helps developers assess dependency risk. Trusty uses statistical analysis of dimensions such as author and repo activity, along with a package’s source of origin, to provide an assessment about its trustworthiness.
+
+This action integrates Trusty into your GitHub workflow,
 allowing you to automatically check the quality and safety of your dependencies
 on every pull request.
 
-The Trusty service used by this action is analyses thousands of packages a day
-across multiple languages to provide a comprehensive security and quality
-analysis of your dependencies. Every dependency released by open source developers
-are ran through a series of static analysis, machine learning, and malware
-detection checks to capture any potential security risks or quality issues and
-protect your codebase from malicious or low-quality dependencies.
+The Trusty service used by this action analyzes thousands of packages a day
+across multiple languages to provide a security and quality
+analysis of dependencies. Dependencies are run through a series of static analysis, machine learning, and malware
+detection checks to capture potential security risks or quality issues.
 
 
 ![Main Pull Request](docs/main.png)
@@ -21,12 +19,12 @@ protect your codebase from malicious or low-quality dependencies.
 ## Overview
 
 This action takes any added dependencies within a pull request and assesses their 
-quality using the [Trusty](https://trustypkg.dev/) API. If any dependencies are
-found to be below a certain threshold (See details below), the action will fail.
+relative risk using the [Trusty](https://trustypkg.dev/) API. If any dependencies are
+found to be below a certain threshold (see details below), the action will fail.
 
 If any dependencies are malicious, deprecated, or archived, the action will also fail.
 
-Full Language Support (inline with Trusty):
+Language Support (inline with Trusty):
 
 * Python
 * JavaScript
@@ -36,19 +34,19 @@ Full Language Support (inline with Trusty):
 
 ## Features
 
-Check if the dependencies are malicious, deprecated or archived
+Check if dependencies are malicious, deprecated or archived
 
 ![Malicious Package](docs/malicious.png)
 
-Check if the dependencies are deprecated or archived (and get altnernative recommendations)
+Check if dependencies are deprecated or archived (and get alternative recommendations)
 
 ![Archived Package](docs/archived.png)
 
-Check if the package has a proven source of origin provenance map (using sigstore or Git Tag / Release mapping)
+Check if dependencies have a [proven source of origin provenance map](https://docs.stacklok.com/trusty/understand/provenance) (using sigstore or Git Tag / Release mapping)
 
 ![Provenance Package](docs/prov.png)
 
-Assess the activity and security risks of the package (using Trusty's hueristics engine)
+Assess the author and repository activity and security risks of dependencies 
 
 ![Activity Package](docs/activity.png)
 
