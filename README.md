@@ -1,4 +1,4 @@
-# Trusty Dependency Risk Action
+# Trusty Dependency Safety Check
 
 ### Check the quality and safety of dependencies in pull requests
 
