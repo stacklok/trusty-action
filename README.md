@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: TrustyPkg Action
-        uses: stacklok/trusty-action@v0.0.1
+        uses: stacklok/trusty-action@v0.0.7
         with:
           global_threshold: 5
           provenance_threshold: 5
