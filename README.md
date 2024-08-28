@@ -83,8 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-* 
-
 > [!NOTE]  
 > You do not need to create a GITHUB_TOKEN, the action uses the default token provided by GitHub Actions at runtime.
 
