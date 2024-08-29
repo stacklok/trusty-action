@@ -62,6 +62,10 @@ on:
     branches:
       - main
 
+# Required for the action to post comments to pull requests
+permissions:
+  pull-requests: write
+
 jobs:
   trusty_pkg_check:
     runs-on: ubuntu-latest
@@ -78,6 +82,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+> [!NOTE]  
+> You do not need to create a GITHUB_TOKEN, the action uses the default token provided by GitHub Actions at runtime.
 
 ## Inputs
 
