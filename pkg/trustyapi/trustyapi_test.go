@@ -41,7 +41,7 @@ func TestProcessGoDependencies(t *testing.T) {
 		}
 		if dep == "github.com/Tinkoff/libvirt-exporter" {
 			if !strings.Contains(report, "Archived") {
-				t.Errorf("Expected report to contain 'Archived' for %s", dep)
+				t.Errorf("Expected report to contain 'Archived' for %s, got %s", dep, report)
 			}
 		}
 		time.Sleep(1 * time.Second)
@@ -59,7 +59,7 @@ func TestProcessDeprecatedDependencies(t *testing.T) {
 		log.Printf("Analyzing dependency: %s\n", dep)
 		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 		if !strings.Contains(report, "Deprecated") {
-			t.Errorf("Expected report to contain 'Deprecated' for %s", dep)
+			t.Errorf("Expected report to contain 'Deprecated' for %s, got %s", dep, report)
 		}
 	}
 
@@ -75,7 +75,7 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 		log.Printf("Analyzing dependency: %s\n", dep)
 		report, _ := ProcessDependency(dep, ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 		if !strings.Contains(report, "Malicious") {
-			t.Errorf("Expected report to contain 'Malicious' for %s", dep)
+			t.Errorf("Expected report to contain 'Malicious' for %s, got %s", dep, report)
 		}
 	}
 
@@ -87,16 +87,16 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 
 	report, _ := ProcessDependency("sigstore", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 	if !strings.Contains(report, "sigstore") {
-		t.Errorf("Expected report to contain 'sigstore'")
+		t.Errorf("Expected report to contain 'sigstore', got %s", report)
 	}
 	if !strings.Contains(report, "https://github.com/sigstore/sigstore-js") {
-		t.Errorf("Source repo not matching")
+		t.Errorf("Source repo not matching, got %s", report")
 	}
 	if !strings.Contains(report, ".github/workflows/release.yml") {
-		t.Errorf("Github workflow not matching")
+		t.Errorf("Github workflow not matching, got %s", report")
 	}
 	if !strings.Contains(report, "CN=sigstore-intermediate,O=sigstore.dev") {
-		t.Errorf("Issuer not matching")
+		t.Errorf("Issuer not matching, got %s", report")
 	}
 }
 
@@ -106,13 +106,13 @@ func TestProcessHistoricalProvenance(t *testing.T) {
 
 	report, _ := ProcessDependency("openpgp", ecosystem, scoreThreshold, 0.0, 0.0, 0.0, 0.0, true, true, true)
 	if !strings.Contains(report, "Number of versions") {
-		t.Errorf("Versions for historical provenance not populated")
+		t.Errorf("Versions for historical provenance not populated, got %s", report")
 	}
 	if !strings.Contains(report, "Number of Git Tags/Releases") {
-		t.Errorf("Tags for historical provenance not populated")
+		t.Errorf("Tags for historical provenance not populated, got %s", report")
 	}
 	if !strings.Contains(report, "Number of versions matched to Git Tags/Releases") {
-		t.Errorf("Matched for historical provenance not populated")
+		t.Errorf("Matched for historical provenance not populated, got %s", report")
 	}
 
 }
