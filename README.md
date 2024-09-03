@@ -72,7 +72,7 @@ jobs:
     name: Check Dependencies with TrustyPkg
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: TrustyPkg Action
         uses: stacklok/trusty-action@v0.0.7
