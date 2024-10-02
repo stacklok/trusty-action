@@ -1,6 +1,6 @@
 module github.com/stacklok/trusty-action
 
-go 1.22
+go 1.23
 
 require (
 	github.com/BurntSushi/toml v1.4.0
