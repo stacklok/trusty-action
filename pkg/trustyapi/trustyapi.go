@@ -190,6 +190,8 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		log.Printf("Processing result for dependency: %s\n", dep)
 	}
 
+	// fmt.Printf("Result: %+v\n", result)
+
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://www.trustypkg.dev/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
 
@@ -255,7 +257,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	reportBuilder.WriteString("</details>\n")
 
 	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
-	if result.Alternatives.Packages != nil && len(result.Alternatives.Packages) > 0 {
+	if len(result.Alternatives.Packages) > 0 {
 		reportBuilder.WriteString("<details>\n")
 		reportBuilder.WriteString("<summary><strong>Alternative Package Recommendations</strong> 💡</summary>\n\n")
 		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
