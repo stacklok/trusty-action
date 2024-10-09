@@ -106,12 +106,11 @@ type Package struct {
 		Score       float64 `json:"score"`
 		Description struct {
 			Hp struct {
-				Tags     float64 `json:"tags"`
-				Common   float64 `json:"common"`
-				Overlap  float64 `json:"overlap"`
-				Versions float64 `json:"versions"`
-				OverTime struct {
-				} `json:"over_time"`
+				Tags     float64  `json:"tags"`
+				Common   float64  `json:"common"`
+				Overlap  float64  `json:"overlap"`
+				Versions float64  `json:"versions"`
+				OverTime struct{} `json:"over_time"`
 			} `json:"hp"`
 			Score      float64 `json:"score"`
 			Status     string  `json:"status"`
@@ -152,12 +151,11 @@ type Package struct {
 				Score       float64 `json:"score"`
 				Description struct {
 					Hp struct {
-						Tags     float64 `json:"tags"`
-						Common   float64 `json:"common"`
-						Overlap  float64 `json:"overlap"`
-						Versions float64 `json:"versions"`
-						OverTime struct {
-						} `json:"over_time"`
+						Tags     float64  `json:"tags"`
+						Common   float64  `json:"common"`
+						Overlap  float64  `json:"overlap"`
+						Versions float64  `json:"versions"`
+						OverTime struct{} `json:"over_time"`
 					} `json:"hp"`
 					Score      float64 `json:"score"`
 					Status     string  `json:"status"`
@@ -183,12 +181,11 @@ type Package struct {
 			Score       float64 `json:"score"`
 			Description struct {
 				Hp struct {
-					Tags     float64 `json:"tags"`
-					Common   float64 `json:"common"`
-					Overlap  float64 `json:"overlap"`
-					Versions float64 `json:"versions"`
-					OverTime struct {
-					} `json:"over_time"`
+					Tags     float64  `json:"tags"`
+					Common   float64  `json:"common"`
+					Overlap  float64  `json:"overlap"`
+					Versions float64  `json:"versions"`
+					OverTime struct{} `json:"over_time"`
 				} `json:"hp"`
 				Score      float64 `json:"score"`
 				Status     string  `json:"status"`

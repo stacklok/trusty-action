@@ -41,7 +41,7 @@ var parsingFunctions = map[string]ParsingFunction{
 // the determined ecosystem, and any error encountered.
 // If no matching parsing function is found, it returns an empty slice of
 // dependencies, "none" as the ecosystem, and no error.
-func Parse(filename string, content string) ([]types.Dependency, string, error) {
+func Parse(filename, content string) ([]types.Dependency, string, error) {
 	log.Printf("Parsing file: %s\n", filename)
 	for suffix, function := range parsingFunctions {
 		if strings.HasSuffix(filename, suffix) {
