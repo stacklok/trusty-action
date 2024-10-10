@@ -31,9 +31,11 @@ func ParseCargoToml(content string) ([]types.Dependency, error) {
 		return nil, err
 	}
 
-	var deps []types.Dependency
+	deps := make([]types.Dependency, len(conf.Dependencies))
+	i := 0
 	for name, version := range conf.Dependencies {
-		deps = append(deps, types.Dependency{Name: name, Version: version})
+		deps[i] = types.Dependency{Name: name, Version: version}
+		i++
 	}
 	return deps, nil
 }

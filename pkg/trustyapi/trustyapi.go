@@ -21,18 +21,18 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
-	"time"
-
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v60/github"
 )
 
 func GenerateReportContent(dependencies []string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
-	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool) {
+	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool,
+) (string, bool) {
 	var (
 		failedReportBuilder strings.Builder
 		failAction          bool // Flag to track if the GitHub Action should fail
@@ -69,7 +69,6 @@ func GenerateReportContent(dependencies []string, ecosystem string, globalThresh
 	commentBody := finalReportBuilder.String()
 
 	return commentBody, failAction
-
 }
 
 // BuildReport analyzes the dependencies of a PR and generates a report based on their Trusty scores.
@@ -98,8 +97,8 @@ func BuildReport(ctx context.Context,
 	typosquattingThreshold float64,
 	failOnMalicious bool,
 	failOnDeprecated bool,
-	failOnArchived bool) {
-
+	failOnArchived bool,
+) {
 	reportContent, failAction := GenerateReportContent(dependencies, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
 		failOnMalicious, failOnDeprecated, failOnArchived)
 
@@ -129,7 +128,7 @@ func BuildReport(ctx context.Context,
 // Example usage: hasAnySubfieldFailed(result, 0.5, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
 // Returns true if any subfield has failed based on the repository's activity level, false otherwise.
 // ...
-func hasAnySubfieldFailed(result Package, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold float64) bool {
+func hasAnySubfieldFailed(result *Package, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold float64) bool {
 	return result.Summary.Description.ActivityRepo < repoActivityThreshold ||
 		result.Summary.Description.ActivityUser < authorActivityThreshold ||
 		result.Summary.Description.Provenance < provenanceThreshold ||
@@ -139,7 +138,7 @@ func hasAnySubfieldFailed(result Package, repoActivityThreshold, authorActivityT
 // getScoreIcon returns an icon based on the score and threshold.
 // If the score is greater than or equal to the threshold, it returns "✅",
 // otherwise it returns "❌".
-func getScoreIcon(score float64, threshold float64) string {
+func getScoreIcon(score, threshold float64) string {
 	if score >= threshold {
 		return "✅"
 	}
@@ -149,7 +148,7 @@ func getScoreIcon(score float64, threshold float64) string {
 // getBoolIcon returns an icon string based on the boolean value and fail flag.
 // If the boolean value is true and the fail flag is true, it returns "❌".
 // Otherwise, it returns "✅".
-func getBoolIcon(b bool, fail bool) string {
+func getBoolIcon(b, fail bool) string {
 	if b && fail {
 		return "❌"
 	}
@@ -164,7 +163,8 @@ func getBoolIcon(b bool, fail bool) string {
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
 func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
-	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool) (string, bool) {
+	failOnMalicious bool, failOnDeprecated bool, failOnArchived bool,
+) (string, bool) {
 	var reportBuilder strings.Builder
 	shouldFail := false
 
@@ -190,8 +190,6 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		log.Printf("Processing result for dependency: %s\n", dep)
 	}
 
-	// fmt.Printf("Result: %+v\n", result)
-
 	// Format the report using Markdown
 	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://www.trustypkg.dev/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
 
@@ -208,7 +206,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	}
 
 	// Check if any subfields have failed
-	subfieldFailed := hasAnySubfieldFailed(result, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
+	subfieldFailed := hasAnySubfieldFailed(&result, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold)
 	summaryIcon := "✅"
 	if subfieldFailed || result.Summary.Score < globalThreshold {
 		summaryIcon = "❌"
@@ -262,9 +260,19 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		reportBuilder.WriteString("<summary><strong>Alternative Package Recommendations</strong> 💡</summary>\n\n")
 		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
 		reportBuilder.WriteString("| ------- | ----- | ---------- |\n")
-		for _, alt := range result.Alternatives.Packages {
-			altURL := fmt.Sprintf("https://www.trustypkg.dev/%s/%s", ecosystem, url.QueryEscape(alt.PackageName))
-			reportBuilder.WriteString(fmt.Sprintf("| `%s` | `%.2f` | [`%s`](%s) |\n", alt.PackageName, float64(alt.Score), alt.PackageName, altURL))
+		for i := range result.Alternatives.Packages {
+			altURL := fmt.Sprintf(
+				"https://www.trustypkg.dev/%s/%s",
+				ecosystem, url.QueryEscape(result.Alternatives.Packages[i].PackageName),
+			)
+			reportBuilder.WriteString(
+				fmt.Sprintf(
+					"| `%s` | `%.2f` | [`%s`](%s) |\n",
+					result.Alternatives.Packages[i].PackageName,
+					float64(result.Alternatives.Packages[i].Score),
+					result.Alternatives.Packages[i].PackageName, altURL,
+				),
+			)
 		}
 		reportBuilder.WriteString("</details>\n")
 	} else {
@@ -300,7 +308,7 @@ func fetchPackageData(requestURL, dep, ecosystem string, resultChan chan<- Packa
 	go func() {
 		var data Package
 		for {
-			resp, err := http.Get(requestURL)
+			resp, err := http.Get(requestURL) //nolint:gosec
 			if err != nil {
 				log.Printf("Error making API request for %s in %s ecosystem: %v\n", dep, ecosystem, err)
 				close(resultChan)

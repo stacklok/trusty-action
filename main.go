@@ -32,7 +32,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func parseScore(scoreStr string, defaultScore string) float64 {
+func parseScore(scoreStr, defaultScore string) float64 {
 	if scoreStr == "" {
 		scoreStr = defaultScore
 	}
@@ -44,7 +44,7 @@ func parseScore(scoreStr string, defaultScore string) float64 {
 	return score
 }
 
-func parseFail(failStr string, defaultFail string) bool {
+func parseFail(failStr, defaultFail string) bool {
 	if failStr == "" {
 		failStr = defaultFail
 	}
@@ -143,7 +143,6 @@ func main() {
 	}
 
 	for _, file := range files {
-
 		baseContent, err := githubClient.GetFileContent(owner, repo, *file.Filename, baseRef)
 		if err != nil {
 			log.Printf("Error fetching base content for %s: %v\n", *file.Filename, err)
@@ -193,6 +192,5 @@ func main() {
 		// In your main application where you call ProcessDependencies
 		trustyapi.BuildReport(ctx, ghClient, owner, repo, prNumber, addedDepNames, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
 			failOnMalicious, failOnDeprecated, failOnArchived)
-
 	}
 }
