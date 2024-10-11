@@ -13,7 +13,8 @@ func TestReportBuilder(t *testing.T) {
 	dependencies := []string{"next", "react", "bugsnagmw", "scriptoni", "notifyjs"}
 
 	result, failAction := GenerateReportContent(dependencies, "npm", 5.0, 5.0, 5.0, 5.0, 5.0, true, true, true)
-	// fmt.Println(result) // this is normally used to display and validate the report output, uncomment for debugging
+	//nolint:gocritic // this is normally used to display and validate the report output, uncomment for debugging
+	// fmt.Println(result)
 	if result == "" {
 		t.Errorf("Report is empty")
 	}
@@ -78,8 +79,10 @@ func TestProcessDeprecatedDependencies(t *testing.T) {
 	ecosystem := "npm"
 	scoreThreshold := 5.0
 
-	dependencies := []string{"@types/google-cloud__storage", "cutjs", "scriptoni", "stryker-mocha-framework", "grunt-html-smoosher", "moesif-express", "swagger-methods",
-		"@syncfusion/ej2-heatmap", "@cnbritain/wc-buttons", "gulp-google-cdn"}
+	dependencies := []string{
+		"@types/google-cloud__storage", "cutjs", "scriptoni", "stryker-mocha-framework", "grunt-html-smoosher", "moesif-express", "swagger-methods",
+		"@syncfusion/ej2-heatmap", "@cnbritain/wc-buttons", "gulp-google-cdn",
+	}
 
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
@@ -88,7 +91,6 @@ func TestProcessDeprecatedDependencies(t *testing.T) {
 			t.Errorf("Expected report to contain 'Deprecated' for %s", dep)
 		}
 	}
-
 }
 
 func TestProcessMaliciousDependencies(t *testing.T) {
@@ -104,7 +106,6 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 			t.Errorf("Expected report to contain 'Malicious' for %s", dep)
 		}
 	}
-
 }
 
 func TestProcessSigstoreProvenance(t *testing.T) {
@@ -136,5 +137,4 @@ func TestProcessHistoricalProvenance(t *testing.T) {
 	if !strings.Contains(report, "Number of versions matched to Git Tags/Releases") {
 		t.Errorf("Matched for historical provenance not populated")
 	}
-
 }

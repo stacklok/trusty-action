@@ -42,9 +42,9 @@ func ParsePomXml(content string) ([]types.Dependency, error) {
 		return nil, err
 	}
 
-	var deps []types.Dependency
-	for _, d := range project.Dependencies.Dependency {
-		deps = append(deps, types.Dependency{Name: d.GroupId + ":" + d.ArtifactId, Version: d.Version})
+	deps := make([]types.Dependency, len(project.Dependencies.Dependency))
+	for i, d := range project.Dependencies.Dependency {
+		deps[i] = types.Dependency{Name: d.GroupId + ":" + d.ArtifactId, Version: d.Version}
 	}
 	return deps, nil
 }
