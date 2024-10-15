@@ -194,7 +194,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://www.trustypkg.dev/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
 
 	// Highlight if the package is malicious, deprecated or archived
-	if result.PackageData.Origin == "malicious" {
+	if result.PackageData.Malicious != nil && result.PackageData.Malicious.Source != "" {
 		reportBuilder.WriteString(fmt.Sprintf("⚠ **Malicious** (This package is marked as Malicious. Proceed with extreme caution!) %s\n", getBoolIcon(result.PackageData.Origin == "malicious", failOnMalicious)))
 	}
 	if result.PackageData.IsDeprecated {
@@ -333,6 +333,11 @@ func fetchPackageData(requestURL, dep, ecosystem string, resultChan chan<- Packa
 			switch data.PackageData.Status {
 			case "complete":
 				log.Printf("API request for %s in %s ecosystem complete\n", dep, ecosystem)
+				resultChan <- data
+				close(resultChan)
+				return
+			case "deleted":
+				log.Printf("API request for %s in %s ecosystem complete (package deleted)\n", dep, ecosystem)
 				resultChan <- data
 				close(resultChan)
 				return
