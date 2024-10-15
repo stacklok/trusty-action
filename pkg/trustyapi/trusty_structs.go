@@ -15,42 +15,45 @@
 
 package trustyapi
 
+import "github.com/stacklok/trusty-sdk-go/pkg/types"
+
 type Package struct {
 	PackageName string `json:"package_name"`
 	PackageType string `json:"package_type"`
 	PackageData struct {
-		ID                 string `json:"id"`
-		Status             string `json:"status"`
-		StatusCode         any    `json:"status_code"`
-		Name               string `json:"name"`
-		Version            string `json:"version"`
-		Author             string `json:"author"`
-		AuthorEmail        string `json:"author_email"`
-		PackageDescription string `json:"package_description"`
-		RepoDescription    string `json:"repo_description"`
-		Origin             string `json:"origin"`
-		StargazersCount    int    `json:"stargazers_count"`
-		WatchersCount      int    `json:"watchers_count"`
-		HomePage           string `json:"home_page"`
-		HasIssues          bool   `json:"has_issues"`
-		HasProjects        bool   `json:"has_projects"`
-		HasDownloads       bool   `json:"has_downloads"`
-		ForksCount         int    `json:"forks_count"`
-		Archived           bool   `json:"archived"`
-		IsDeprecated       bool   `json:"is_deprecated"`
-		Disabled           bool   `json:"disabled"`
-		OpenIssuesCount    int    `json:"open_issues_count"`
-		Visibility         string `json:"visibility"`
-		Forks              int    `json:"forks"`
-		DefaultBranch      string `json:"default_branch"`
-		NetworkCount       int    `json:"network_count"`
-		SubscribersCount   int    `json:"subscribers_count"`
-		RepositoryName     string `json:"repository_name"`
-		ContributorCount   int    `json:"contributor_count"`
-		PublicRepos        int    `json:"public_repos"`
-		PublicGists        int    `json:"public_gists"`
-		Followers          int    `json:"followers"`
-		Following          int    `json:"following"`
+		ID                 string               `json:"id"`
+		Status             string               `json:"status"`
+		StatusCode         any                  `json:"status_code"`
+		Name               string               `json:"name"`
+		Version            string               `json:"version"`
+		Author             string               `json:"author"`
+		AuthorEmail        string               `json:"author_email"`
+		PackageDescription string               `json:"package_description"`
+		RepoDescription    string               `json:"repo_description"`
+		Origin             string               `json:"origin"`
+		StargazersCount    int                  `json:"stargazers_count"`
+		WatchersCount      int                  `json:"watchers_count"`
+		HomePage           string               `json:"home_page"`
+		HasIssues          bool                 `json:"has_issues"`
+		HasProjects        bool                 `json:"has_projects"`
+		HasDownloads       bool                 `json:"has_downloads"`
+		ForksCount         int                  `json:"forks_count"`
+		Archived           bool                 `json:"archived"`
+		IsDeprecated       bool                 `json:"is_deprecated"`
+		Disabled           bool                 `json:"disabled"`
+		OpenIssuesCount    int                  `json:"open_issues_count"`
+		Visibility         string               `json:"visibility"`
+		Forks              int                  `json:"forks"`
+		DefaultBranch      string               `json:"default_branch"`
+		NetworkCount       int                  `json:"network_count"`
+		SubscribersCount   int                  `json:"subscribers_count"`
+		RepositoryName     string               `json:"repository_name"`
+		ContributorCount   int                  `json:"contributor_count"`
+		PublicRepos        int                  `json:"public_repos"`
+		PublicGists        int                  `json:"public_gists"`
+		Followers          int                  `json:"followers"`
+		Following          int                  `json:"following"`
+		Malicious          *types.MaliciousData `json:"malicious"`
 		Owner              struct {
 			Author          string `json:"author"`
 			AuthorEmail     string `json:"author_email"`
