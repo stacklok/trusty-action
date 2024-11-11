@@ -15,7 +15,7 @@
 
 package trustyapi
 
-import "github.com/stacklok/trusty-sdk-go/pkg/types"
+import "github.com/stacklok/trusty-sdk-go/pkg/v1/types"
 
 type Package struct {
 	PackageName string `json:"package_name"`
