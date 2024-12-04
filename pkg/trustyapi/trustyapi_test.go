@@ -97,7 +97,7 @@ func TestProcessMaliciousDependencies(t *testing.T) {
 	ecosystem := "pypi"
 	scoreThreshold := 5.0
 
-	dependencies := []string{"lyft-service", "types-for-adobe", "reqargs"}
+	dependencies := []string{"lyft-service", "types-for-adobe", "invokehttp"}
 
 	for _, dep := range dependencies {
 		log.Printf("Analyzing dependency: %s\n", dep)
@@ -118,7 +118,7 @@ func TestProcessSigstoreProvenance(t *testing.T) {
 		t.Errorf("Expected report to contain 'sigstore'")
 	}
 
-	if !strings.Contains(report, "https://www.trustypkg.dev/npm/sigstore") {
+	if !strings.Contains(report, "https://insight.stacklok.com/npm/sigstore") {
 		t.Errorf("Link to package page not found")
 	}
 }
