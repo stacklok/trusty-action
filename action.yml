@@ -1,4 +1,4 @@
-name: "Trusty Dependency Risk Action"
+name: "Stacklok Insight Dependency Risk Action"
 description: "Check the quality and safety of your dependencies on every pull request"
 author: "Stacklok"
 branding:

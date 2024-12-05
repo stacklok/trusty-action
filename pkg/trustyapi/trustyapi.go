@@ -56,8 +56,8 @@ func GenerateReportContent(dependencies []string, ecosystem string, globalThresh
 	}
 
 	finalReportBuilder := strings.Builder{}
-	finalReportBuilder.WriteString("## Trusty Dependency Analysis Action \n\n")
-	finalReportBuilder.WriteString("> 🚀 Trusty Dependency Analysis Action has completed an analysis of the dependencies in this PR.\n\n")
+	finalReportBuilder.WriteString("## Stacklok Insight Dependency Analysis Action \n\n")
+	finalReportBuilder.WriteString("> 🚀 Stacklok Insight Dependency Analysis Action has completed an analysis of the dependencies in this PR.\n\n")
 	if failedReportBuilder.Len() > len("### ❌ Failed Dependency Checks\n\n") {
 		finalReportBuilder.WriteString(failedReportBuilder.String())
 		finalReportBuilder.WriteString("\n")
@@ -71,7 +71,7 @@ func GenerateReportContent(dependencies []string, ecosystem string, globalThresh
 	return commentBody, failAction
 }
 
-// BuildReport analyzes the dependencies of a PR and generates a report based on their Trusty scores.
+// BuildReport analyzes the dependencies of a PR and generates a report based on their Stacklok Insight scores.
 // It takes the following parameters:
 // - ctx: The context.Context for the function.
 // - ghClient: A pointer to a github.Client for interacting with the GitHub API.
@@ -80,7 +80,7 @@ func GenerateReportContent(dependencies []string, ecosystem string, globalThresh
 // - prNumber: The number of the pull request.
 // - dependencies: A slice of strings representing the dependencies to be analyzed.
 // - ecosystem: The ecosystem of the dependencies (e.g., "npm", "pip", "maven").
-// - scoreThreshold: The threshold for Trusty scores below which a warning will be generated.
+// - scoreThreshold: The threshold for Stacklok Insight scores below which a warning will be generated.
 //
 // The function generates a report and posts it as a comment on the pull request.
 func BuildReport(ctx context.Context,
@@ -102,7 +102,7 @@ func BuildReport(ctx context.Context,
 	reportContent, failAction := GenerateReportContent(dependencies, ecosystem, globalThreshold, repoActivityThreshold, authorActivityThreshold, provenanceThreshold, typosquattingThreshold,
 		failOnMalicious, failOnDeprecated, failOnArchived)
 
-	if strings.TrimSpace(reportContent) != "## Trusty Dependency Analysis Action \n\n" {
+	if strings.TrimSpace(reportContent) != "## Stacklok Insight Dependency Analysis Action \n\n" {
 		_, _, err := ghClient.Issues.CreateComment(ctx, owner, repo, prNumber, &github.IssueComment{Body: &reportContent})
 		if err != nil {
 			log.Printf("error posting comment to PR: %v\n", err)
@@ -158,8 +158,8 @@ func getBoolIcon(b, fail bool) string {
 // processDependency analyzes a dependency by making an API request to TrustyPkg.dev and returns a formatted report.
 // It takes the dependency name, ecosystem, and score threshold as input parameters.
 // The function constructs the query URL, makes the API request, and processes the response.
-// If the Trusty score of the dependency is above the score threshold, it skips the dependency.
-// Otherwise, it formats the report using Markdown and includes information about the dependency's Trusty score,
+// If the Stacklok Insight score of the dependency is above the score threshold, it skips the dependency.
+// Otherwise, it formats the report using Markdown and includes information about the dependency's Stacklok Insight score,
 // whether it is malicious, deprecated or archived, and recommended alternative packages if available.
 // The function returns the formatted report as a string.
 func ProcessDependency(dep string, ecosystem string, globalThreshold float64, repoActivityThreshold float64, authorActivityThreshold float64, provenanceThreshold float64, typosquattingThreshold float64,
@@ -191,7 +191,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 	}
 
 	// Format the report using Markdown
-	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://www.trustypkg.dev/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
+	reportBuilder.WriteString(fmt.Sprintf("### :package: [%s](https://insight.stacklok.com/%s/%s) - %.2f\n\n", dep, ecosystem, dep, result.Summary.Score))
 
 	// Highlight if the package is malicious, deprecated or archived
 	if result.PackageData.Malicious != nil && result.PackageData.Malicious.Source != "" {
@@ -214,7 +214,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 
 	// scores
 	reportBuilder.WriteString("<details>\n")
-	reportBuilder.WriteString(fmt.Sprintf("<summary>📉 <b>Trusty Score: %.2f %s</b></summary>\n\n", result.Summary.Score, summaryIcon))
+	reportBuilder.WriteString(fmt.Sprintf("<summary>📉 <b>Stacklok Insight Score: %.2f %s</b></summary>\n\n", result.Summary.Score, summaryIcon))
 	reportBuilder.WriteString("| Category | Score | Passed |\n")
 	reportBuilder.WriteString("| --- | --- | --- |\n")
 	reportBuilder.WriteString(fmt.Sprintf("| Repo activity   | `%.2f` | %s |\n", result.Summary.Description.ActivityRepo, getScoreIcon(result.Summary.Description.ActivityRepo, repoActivityThreshold)))
@@ -251,18 +251,18 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 		reportBuilder.WriteString(fmt.Sprintf("<tr><td style='padding: 8px; border: 1px solid #ddd;'>Number of versions matched to Git Tags/Releases</td><td style='padding: 8px; border: 1px solid #ddd;'>%.0f</td></tr>\n", result.Provenance.Description.Hp.Common))
 	}
 	reportBuilder.WriteString("</table>\n")
-	reportBuilder.WriteString("\n<p><a href='https://docs.stacklok.com/trusty/understand/provenance'>Learn more about source of origin provenance</a></p>\n")
+	reportBuilder.WriteString("\n<p><a href='https://docs.stacklok.com/insight/understand/provenance'>Learn more about source of origin provenance</a></p>\n")
 	reportBuilder.WriteString("</details>\n")
 
 	// Include alternative packages in a Markdown table if available and if the package is deprecated, archived or malicious
 	if len(result.Alternatives.Packages) > 0 {
 		reportBuilder.WriteString("<details>\n")
 		reportBuilder.WriteString("<summary><strong>Alternative Package Recommendations</strong> 💡</summary>\n\n")
-		reportBuilder.WriteString("| Package | Score | Trusty Link |\n")
+		reportBuilder.WriteString("| Package | Score | Stacklok Insight Link |\n")
 		reportBuilder.WriteString("| ------- | ----- | ---------- |\n")
 		for i := range result.Alternatives.Packages {
 			altURL := fmt.Sprintf(
-				"https://www.trustypkg.dev/%s/%s",
+				"https://insight.stacklok.com/%s/%s",
 				ecosystem, url.QueryEscape(result.Alternatives.Packages[i].PackageName),
 			)
 			reportBuilder.WriteString(
@@ -281,7 +281,7 @@ func ProcessDependency(dep string, ecosystem string, globalThreshold float64, re
 
 	reportBuilder.WriteString("\n---\n\n")
 
-	// Check if the Trusty score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
+	// Check if the Stacklok Insight score is below the scoreThreshold, if IsDeprecated, isMalicious, Archived, if so shouldFail is set to true
 	if (failOnDeprecated && result.PackageData.IsDeprecated) ||
 		(failOnMalicious && result.PackageData.Origin == "malicious") ||
 		(failOnArchived && result.PackageData.Archived) ||
