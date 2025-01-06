@@ -7,7 +7,7 @@ require (
 	github.com/google/go-github/v60 v60.0.0
 	github.com/stacklok/trusty-sdk-go v0.2.2
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/oauth2 v0.24.0
+	golang.org/x/oauth2 v0.25.0
 )
 
 require (
