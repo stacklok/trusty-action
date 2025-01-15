@@ -1,3 +1,5 @@
+⚠️ **DEPRECATED**: This GitHub Action is no longer maintained. Use at your own risk.
+
 # Trusty Dependency Risk Action
 
 ### Check the quality and safety of dependencies in pull requests

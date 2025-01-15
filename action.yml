@@ -1,5 +1,5 @@
 name: "Trusty Dependency Risk Action"
-description: "Check the quality and safety of your dependencies on every pull request"
+description: "⚠️ DEPRECATED: This GitHub Action is no longer maintained. Check the quality and safety of your dependencies on every pull request."
 author: "Stacklok"
 branding:
   icon: "alert-triangle"
